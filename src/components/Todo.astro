@@ -1,0 +1,23 @@
+---
+// A visible gap for a fact that isn't in content/ yet. Never replace it with a guess.
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<mark class="todo">[{label}]</mark>
+
+<style>
+  .todo {
+    background: var(--paper);
+    color: var(--pencil);
+    border: 2px dashed var(--fox);
+    border-radius: 6px;
+    padding: 0 0.3em;
+    font-style: italic;
+    font-size: 0.9em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+</style>

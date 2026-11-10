@@ -1,0 +1,51 @@
+---
+// Every Buy button: the same Amazon link, new tab, rel="noopener".
+import { book } from '../data/book';
+import Todo from './Todo.astro';
+
+interface Props {
+  label?: string;
+  showPrice?: boolean;
+  showMissing?: boolean; // show the [Amazon link] marker while the link is missing
+}
+const { label = 'Buy on Amazon', showPrice = true, showMissing = true } = Astro.props;
+const href = book.amazonUrl || '#';
+const price = book.price && book.currency ? new Intl.NumberFormat('en', { style: 'currency', currency: book.currency }).format(Number(book.price)) : '';
+---
+
+<div class="buy">
+  <a class="buy__button" href={href} target="_blank" rel="noopener">
+    {label}
+    {showPrice && price && <span class="buy__price">{price}</span>}
+    <span class="visually-hidden">(opens in a new tab)</span>
+  </a>
+  {showMissing && !book.amazonUrl && <Todo label="Amazon link" />}
+</div>
+
+<style>
+  .buy {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+  }
+  .buy__button {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.9rem 1.3rem;
+    background: var(--fox);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.2;
+    text-decoration: none;
+    border-radius: 2px;
+  }
+  .buy__button:hover {
+    background: var(--fox-deep);
+  }
+  .buy__price {
+    font-weight: 500;
+  }
+</style>

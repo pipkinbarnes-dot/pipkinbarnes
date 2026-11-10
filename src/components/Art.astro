@@ -1,0 +1,69 @@
+---
+// Shows a piece of the book's art, or a labelled empty frame saying which file goes there.
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  image?: ImageMetadata;
+  alt: string;
+  missing: string; // file to add, shown in the empty frame
+  ratio?: string; // frame shape while empty, e.g. "3 / 4"
+  sizes?: string;
+  widths?: number[];
+  eager?: boolean;
+  class?: string;
+}
+
+const {
+  image,
+  alt,
+  missing,
+  ratio = '3 / 4',
+  sizes = '(min-width: 64rem) 30rem, 90vw',
+  widths = [360, 540, 720, 1080],
+  eager = false,
+  class: className,
+} = Astro.props;
+
+const fitWidths = image ? widths.filter((w) => w <= image.width) : [];
+if (image && fitWidths.length === 0) fitWidths.push(image.width);
+---
+
+{
+  image ? (
+    <Image
+      src={image}
+      alt={alt}
+      widths={fitWidths}
+      sizes={sizes}
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : 'auto'}
+      class:list={['art', className]}
+    />
+  ) : (
+    <div
+      class:list={['art', 'art--empty', className]}
+      style={`aspect-ratio: ${ratio}`}
+      {...alt ? { role: 'img', 'aria-label': alt } : { 'aria-hidden': 'true' }}
+    >
+      <span>{missing}</span>
+    </div>
+  )
+}
+
+<style>
+  .art {
+    width: 100%;
+  }
+  .art--empty {
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: var(--stand-in);
+    border: 1px dashed var(--pencil-soft);
+    color: var(--pencil-soft);
+    font-size: var(--step--1);
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+</style>

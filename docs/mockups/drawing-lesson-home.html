@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pip mock: drawing book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Besley:ital,wght@0,400;0,600;0,800;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ffffff;
+  --ink:#2b211c;        /* sepia drawing ink */
+  --ink-soft:#5b4d43;
+  --blue:#a4dded;       /* non-photo blue: the pencil illustrators sketch with */
+  --blue-deep:#2f7d99;  /* readable version of it, for Pip's notes */
+  --fox:#d9662b;        /* Pip; resample from the art */
+  --wash:#f3efe9;       /* stand-in grey for art not yet supplied */
+  --serif:'Besley', Georgia, serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1.0625rem/1.65 var(--serif)}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.note{position:absolute;top:.5rem;right:.75rem;font:600 .75rem/1.3 system-ui,sans-serif;color:#9a3b12;background:#fff3ea;padding:.2rem .45rem;border-radius:3px;z-index:9}
+
+/* masthead: just the author's name and one action, like a book's running head */
+.top{display:flex;justify-content:space-between;align-items:baseline;padding:1rem 0;border-bottom:1px solid var(--ink)}
+.top b{font-weight:800;letter-spacing:.01em}
+.top a{font-size:.95rem}
+
+/* hero: the method is the picture */
+.hero{padding:2.25rem 0 3rem}
+h1{font-weight:800;font-size:clamp(2.2rem,8.5vw,4.6rem);line-height:1.02;letter-spacing:-.015em;margin:0 0 1.75rem;max-width:14ch}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:1.25rem 1rem;counter-reset:s}
+.steps li{counter-increment:s}
+.panel{position:relative;aspect-ratio:1;border:1px solid var(--ink);background:
+   linear-gradient(var(--paper),var(--paper)) padding-box,
+   repeating-linear-gradient(0deg,transparent 0 23px,rgba(164,221,237,.0) 23px 24px)}
+.panel::before{content:counter(s);position:absolute;top:.4rem;left:.55rem;font-weight:800;font-size:1.35rem;line-height:1}
+.panel svg{position:absolute;inset:12%}
+.pipnote{margin:.45rem 0 0;font-style:italic;font-size:.95rem;line-height:1.35;color:var(--blue-deep)}
+.pipnote::before{content:"";display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--fox);margin-right:.4em;vertical-align:.05em}
+
+.book{display:grid;grid-template-columns:7.5rem 1fr;gap:1.25rem;align-items:end;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--blue)}
+.cover{aspect-ratio:17/22;background:var(--wash);border:1px solid var(--ink);display:grid;place-items:center;font-size:.75rem;color:var(--ink-soft);text-align:center;padding:.5rem}
+.book p{margin:0 0 .9rem;font-size:.95rem;color:var(--ink-soft)}
+.book .title{font-weight:600;color:var(--ink);font-size:1.15rem;line-height:1.25;margin-bottom:.35rem}
+.buy{display:inline-block;background:var(--ink);color:#fff;text-decoration:none;font-weight:600;padding:.8rem 1.15rem;border-radius:3px}
+.buy:hover{background:#171009}
+
+/* sections: separated by space and one blue guide line, not colour bands */
+section{padding:3.25rem 0;border-top:1px solid var(--blue)}
+h2{font-weight:800;font-size:clamp(1.6rem,5.5vw,2.4rem);line-height:1.1;margin:0 0 1rem;letter-spacing:-.01em}
+h3{font-weight:600;font-size:1.2rem;margin:0 0 .35rem}
+p{margin:0 0 1rem;max-width:36rem}
+
+.spread{background:var(--wash);border:1px solid var(--ink);aspect-ratio:3/2;display:grid;place-items:center;color:var(--ink-soft);font-size:.85rem;text-align:center;padding:1rem;margin:1.25rem 0 .5rem}
+.caption{font-size:.9rem;color:var(--ink-soft)}
+.lists{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
+.lists ul{margin:0;padding:0;list-style:none}
+.lists li{padding:.3rem 0;border-bottom:1px solid #e8e0d8}
+
+.two{display:grid;gap:2rem}
+dl{margin:0;max-width:40rem}
+dt{font-weight:600;margin-top:1.25rem}
+dd{margin:.2rem 0 0;color:var(--ink-soft)}
+
+.follow{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;font-size:1.1rem}
+footer{background:var(--ink);color:#eadfd6;padding:2.5rem 0 6rem;font-size:.9rem}
+footer a{color:#fff}
+footer .row{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin-bottom:1rem}
+
+.sticky{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--ink);padding:.7rem 1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.sticky span{font-size:.9rem;color:var(--ink-soft)}
+
+@media (min-width:56rem){
+  .hero{display:grid;grid-template-columns:5fr 7fr;gap:0 3rem;align-items:start;padding:4rem 0 4.5rem}
+  h1{grid-column:1;margin-top:.25rem}
+  .steps{grid-column:2;grid-row:1 / span 2;grid-template-columns:repeat(2,1fr);gap:2rem 1.5rem}
+  .book{grid-column:1;align-self:end;border-top:0;padding-top:0}
+  .two{grid-template-columns:1fr 1fr;gap:3rem}
+  .inside{display:grid;grid-template-columns:4fr 8fr;gap:3rem;align-items:start}
+  .inside .spread{margin-top:0}
+  .sticky{display:none}
+  footer{padding-bottom:2.5rem}
+}
+</style>
+</head>
+<body>
+<span class="note">Mock: stand-in drawing and grey boxes where the book's art goes</span>
+
+<div class="wrap">
+  <header class="top">
+    <b>Pipkin Barnes</b>
+    <a href="#buy">Buy the book</a>
+  </header>
+
+  <main>
+  <div class="hero">
+    <h1>Learn to draw animals and foods, one step at a time.</h1>
+
+    <ol class="steps" aria-label="Drawing an apple in four steps">
+      <li>
+        <div class="panel"><svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="55" r="34" fill="none" stroke="#a4dded" stroke-width="1.6"/>
+          <line x1="50" y1="12" x2="50" y2="94" stroke="#a4dded" stroke-width="1.2" stroke-dasharray="3 3"/>
+        </svg></div>
+        <p class="pipnote">Start with a big, round circle.</p>
+      </li>
+      <li>
+        <div class="panel"><svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="55" r="34" fill="none" stroke="#a4dded" stroke-width="1.6"/>
+          <path d="M50 30 C35 18 12 28 14 52 C16 78 34 92 50 86 C66 92 84 78 86 52 C88 28 65 18 50 30 Z" fill="none" stroke="#2b211c" stroke-width="2.4" stroke-linejoin="round"/>
+        </svg></div>
+        <p class="pipnote">Dip the top. Squash the bottom.</p>
+      </li>
+      <li>
+        <div class="panel"><svg viewBox="0 0 100 100" aria-hidden="true">
+          <path d="M50 30 C35 18 12 28 14 52 C16 78 34 92 50 86 C66 92 84 78 86 52 C88 28 65 18 50 30 Z" fill="none" stroke="#2b211c" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M50 30 C50 22 52 16 56 11" fill="none" stroke="#2b211c" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M54 20 C60 10 74 9 79 13 C73 22 61 25 54 20 Z" fill="none" stroke="#2b211c" stroke-width="2.2" stroke-linejoin="round"/>
+        </svg></div>
+        <p class="pipnote">Add a stalk and a leaf.</p>
+      </li>
+      <li>
+        <div class="panel"><svg viewBox="0 0 100 100" aria-hidden="true">
+          <path d="M50 30 C35 18 12 28 14 52 C16 78 34 92 50 86 C66 92 84 78 86 52 C88 28 65 18 50 30 Z" fill="#d9472b" stroke="#2b211c" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M28 44 C27 52 29 60 33 66" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+          <path d="M50 30 C50 22 52 16 56 11" fill="none" stroke="#2b211c" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M54 20 C60 10 74 9 79 13 C73 22 61 25 54 20 Z" fill="#6aa84f" stroke="#2b211c" stroke-width="2.2" stroke-linejoin="round"/>
+        </svg></div>
+        <p class="pipnote">Now colour it in!</p>
+      </li>
+    </ol>
+
+    <div class="book" id="buy">
+      <div class="cover">Cover</div>
+      <div>
+        <p class="title">[Book title]</p>
+        <p>A colouring book by Pipkin Barnes. Paperback, [64] pages, for ages [4 to 8].</p>
+        <a class="buy" href="#">Buy on Amazon, [£9.99]</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="inside">
+    <div>
+      <h2>Inside the book</h2>
+      <p>Every animal and food is broken into small steps. Pip the fox shows what to draw next, so kids can work through a page on their own and finish with a drawing that's really theirs.</p>
+      <div class="lists">
+        <div><h3>Animals</h3><ul><li>[from book.md]</li><li>…</li></ul></div>
+        <div><h3>Foods</h3><ul><li>[from book.md]</li><li>…</li></ul></div>
+      </div>
+    </div>
+    <div>
+      <div class="spread">Photo: the paperback open flat on a table, a half-coloured page and a few crayons</div>
+      <p class="caption">A spread from the book, photographed as it is.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="two">
+      <div><h3>For parents</h3><p>Sit down and draw together, or let them get on with it. Each page shows what to draw next, so they go at their own pace.</p></div>
+      <div><h3>For teachers</h3><p>The whole class can draw the same animal at once, one step at a time. <a href="#">Teaching with Pip</a></p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <dl>
+      <dt>What age is it for?</dt><dd>Kids aged [4 to 8].</dd>
+      <dt>How big is the book?</dt><dd>[Trim size], [64] pages.</dd>
+      <dt>What paper is it printed on?</dt><dd>[Paper.]</dd>
+      <dt>How does the method work?</dt><dd>Each drawing is split into small steps. Kids copy one, add the next, and colour in the finished picture.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Follow Pip</h2>
+    <p class="follow"><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">YouTube</a><a href="#">Pinterest</a><a href="#">Facebook</a></p>
+  </section>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="row"><a href="#">Legal notice</a><a href="#">Privacy policy</a><a href="#">[contact email]</a></div>
+    <div>© 2026 Pipkin Barnes</div>
+  </div>
+</footer>
+
+<div class="sticky"><span>[Book title]</span><a class="buy" href="#">Buy on Amazon</a></div>
+</body>
+</html>

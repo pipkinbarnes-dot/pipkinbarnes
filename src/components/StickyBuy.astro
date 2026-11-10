@@ -1,0 +1,63 @@
+---
+// Mobile only: the title and a Buy button pinned to the bottom of the screen.
+// It slides away while another Buy button is already on screen, so there's never two at once.
+import BuyButton from './BuyButton.astro';
+import { book } from '../data/book';
+---
+
+<div class="sticky-buy" data-sticky-buy>
+  <span class="sticky-buy__title">{book.title || 'Pip the fox'}</span>
+  <BuyButton showPrice={false} showMissing={false} />
+</div>
+
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-sticky-buy]');
+  const others = [...document.querySelectorAll('.buy__button')].filter((el) => !el.closest('[data-sticky-buy]'));
+  if (bar && others.length && 'IntersectionObserver' in window) {
+    const visible = new Set<Element>();
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) e.isIntersecting ? visible.add(e.target) : visible.delete(e.target);
+      bar.classList.toggle('is-hidden', visible.size > 0);
+    });
+    others.forEach((el) => io.observe(el));
+  }
+</script>
+
+<style>
+  .sticky-buy {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem var(--gutter) calc(0.6rem + env(safe-area-inset-bottom));
+    background: var(--paper);
+    border-top: 1px solid var(--pencil);
+    transition:
+      transform 200ms ease,
+      visibility 0s linear 0s;
+  }
+  .sticky-buy__title {
+    font-weight: 700;
+    font-size: var(--step--1);
+    line-height: 1.2;
+  }
+  .sticky-buy :global(.buy__button) {
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+  }
+  .sticky-buy.is-hidden {
+    transform: translateY(110%);
+    visibility: hidden;
+    transition:
+      transform 200ms ease,
+      visibility 0s linear 200ms;
+  }
+  @media (min-width: 60rem) {
+    .sticky-buy {
+      display: none;
+    }
+  }
+</style>

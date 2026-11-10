@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pip mock: on the drawing mat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mat:#2f5d50;        /* self-healing cutting mat: the illustrator's desk */
+  --mat-line:#4f7d6f;   /* its printed grid */
+  --mat-deep:#244a40;
+  --paper:#ffffff;
+  --pencil:#2e2c29;     /* text */
+  --pencil-soft:#5f5a54;
+  --guide:#a4dded;      /* non-photo blue, for construction lines only */
+  --fox:#c4511c;        /* Buy, and Pip; white text 4.6:1 */
+  --stand-in:#ece8e2;
+  --font:'Archivo', 'Helvetica Neue', Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:auto}
+body{margin:0;background:var(--paper);color:var(--pencil);font:400 1.0625rem/1.6 var(--font);font-stretch:100%}
+img,svg,video{display:block;max-width:100%}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.wrap{max-width:76rem;margin:0 auto;padding:0 1.25rem}
+.mocknote{position:fixed;top:.5rem;right:.5rem;z-index:50;font:600 .72rem/1.3 system-ui;background:#fff3ea;color:#9a3b12;padding:.25rem .5rem;border-radius:3px;max-width:15rem}
+
+/* condensed display type, set like the numbers printed on a cutting mat */
+.display{font-stretch:68%;font-weight:800;letter-spacing:-.005em;line-height:.95;text-transform:none}
+
+/* ---------- running head ---------- */
+.top{display:flex;justify-content:space-between;align-items:center;padding:.9rem 1.25rem;background:var(--mat);color:#fff}
+.top b{font-stretch:68%;font-weight:800;font-size:1.25rem;letter-spacing:.01em}
+.top a{font-size:.95rem}
+
+/* ---------- hero: the film of a page being drawn ---------- */
+.stage{position:relative;background:var(--mat);color:#fff;padding:0 0 2.5rem;overflow:hidden;
+  background-image:
+    linear-gradient(var(--mat-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--mat-line) 1px,transparent 1px);
+  background-size:40px 40px;background-position:-1px -1px}
+.ruler{height:22px;border-bottom:1px solid #9cc2b5;
+  background:
+    repeating-linear-gradient(90deg,#cfe3dc 0 1px,transparent 1px 40px) 0 100%/100% 14px no-repeat,
+    repeating-linear-gradient(90deg,#9cc2b5 0 1px,transparent 1px 8px) 0 100%/100% 6px no-repeat}
+.film{position:relative;margin:1.5rem auto 0;width:min(88%,30rem);aspect-ratio:4/5;background:var(--paper);box-shadow:0 30px 60px -20px rgba(0,0,0,.45)}
+.film svg{position:absolute;inset:14%}
+.film .label{position:absolute;left:.6rem;top:.5rem;font-size:.72rem;color:var(--pencil-soft)}
+.caption{position:absolute;left:4%;bottom:1rem;width:max-content;max-width:64%;
+  background:rgba(30,30,28,.86);color:#fff;font-size:1.05rem;font-weight:600;padding:.35rem .7rem;border-radius:2px}
+.caption span{display:none}
+.filmcol{position:relative}
+.pip{position:absolute;right:2%;bottom:-1.5rem;width:30%;max-width:9rem;aspect-ratio:3/4;border-radius:45% 45% 10px 10px;
+  background:#f6d9c6;border:2px dashed #c4511c;display:grid;place-items:center;color:#8a3410;font-weight:700;font-size:.85rem}
+.hero-copy{padding-top:2.5rem}
+.hero-copy h1{font-size:clamp(2.9rem,13vw,7.5rem);margin:0 0 1rem;max-width:11ch}
+.hero-copy p{font-size:1.15rem;max-width:30rem;margin:0 0 1.5rem;color:#e3efe9}
+.buy{display:inline-flex;align-items:center;gap:.75rem;background:var(--fox);color:#fff;text-decoration:none;font-weight:700;font-size:1.1rem;padding:.9rem 1.3rem;border-radius:2px}
+.buy:hover{background:#a8441a}
+.buy small{font-weight:500;opacity:.9}
+.facts{margin-top:1rem;font-size:.9rem;color:#cfe3dc}
+
+/* loop of the stand-in "film": the same four strokes, timed like a time-lapse */
+@media (prefers-reduced-motion:no-preference){
+  .film .g{stroke-dasharray:1;stroke-dashoffset:1;animation:film 12s linear infinite}
+  .film .s1{animation-name:f1}.film .s2{animation-name:f2}.film .s3{animation-name:f3}.film .s4{animation-name:f3}.film .fill{animation:ffill 12s linear infinite}
+  .caption span{animation:cap 12s steps(1) infinite;position:absolute;opacity:0}
+  .caption span{display:inline;position:static}
+  .caption{display:grid}.caption span{grid-area:1/1}
+  .caption span:nth-child(1){animation-name:c1}.caption span:nth-child(2){animation-name:c2}.caption span:nth-child(3){animation-name:c3}.caption span:nth-child(4){animation-name:c4}
+}
+@media (prefers-reduced-motion:reduce){.caption span:last-child{display:inline}}
+@keyframes f1{0%{stroke-dashoffset:1}12%,92%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes f2{0%,18%{stroke-dashoffset:1}38%,92%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes f3{0%,44%{stroke-dashoffset:1}60%,92%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes ffill{0%,66%{opacity:0}80%,92%{opacity:1}100%{opacity:0}}
+@keyframes c1{0%,17%{opacity:1}18%,100%{opacity:0}}
+@keyframes c2{0%,17%{opacity:0}18%,43%{opacity:1}44%,100%{opacity:0}}
+@keyframes c3{0%,43%{opacity:0}44%,65%{opacity:1}66%,100%{opacity:0}}
+@keyframes c4{0%,65%{opacity:0}66%,96%{opacity:1}97%,100%{opacity:0}}
+
+/* ---------- draw-along: scroll draws the page ---------- */
+.drawalong{position:relative;height:320vh;view-timeline-name:--draw;background:var(--paper)}
+.pin{position:sticky;top:0;height:100vh;height:100svh;display:grid;align-content:center;gap:1.25rem;padding:1.5rem 1.25rem}
+.pin h2{font-size:clamp(2.2rem,9vw,4.5rem);margin:0}
+.sheet{position:relative;width:min(100%,26rem,52svh);aspect-ratio:1;border:1px solid var(--pencil);justify-self:start}
+.sheet svg{position:absolute;inset:10%}
+.stepnum{position:absolute;top:.4rem;left:.6rem;font-stretch:68%;font-weight:800;font-size:2.4rem;line-height:1;display:grid}
+.stepnum span,.stepnote span{grid-area:1/1}
+.stepnote{display:grid;max-width:26rem;min-height:5.5rem}
+.stepnote small{display:block;font-weight:400;font-size:.95rem;color:var(--pencil-soft);margin-top:.5rem}
+.stepnote em{font-style:normal;font-weight:700}
+.pipsays{display:block;font-size:1.6rem;line-height:1.2;font-weight:700}
+.pipsays::before{content:"Pip";display:inline-block;font-size:.7rem;vertical-align:.45em;margin-right:.5em;padding:.1rem .4rem;border-radius:999px;background:var(--fox);color:#fff;letter-spacing:.02em}
+.progress{display:flex;gap:.35rem}
+.progress i{width:3rem;height:8px;border-radius:4px;background:#ebe6df;position:relative;overflow:hidden}
+.progress i::after{content:"";position:absolute;inset:0;background:var(--pencil);transform-origin:left;transform:scaleX(1)}
+.progress i:nth-child(1)::after{background:#7cc6dd}.progress i:nth-child(4)::after{background:#d9472b}
+
+/* static fallback: everything drawn, every note listed */
+.stepnum span:not(:last-child){display:none}
+.stepnote span:not(:last-child){display:none}
+
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    .sheet .g{stroke-dasharray:1;stroke-dashoffset:1;animation:draw linear both;animation-timeline:--draw}
+    .sheet .s1{animation-range:contain 0% contain 18%}
+    .sheet .s2{animation-range:contain 20% contain 45%}
+    .sheet .s3,.sheet .s4{animation-range:contain 47% contain 68%}
+    .sheet .fill{opacity:0;animation:fadein linear both;animation-timeline:--draw;animation-range:contain 72% contain 88%}
+    .sheet .guidecircle{animation:fadeout linear both;animation-timeline:--draw;animation-range:contain 70% contain 85%}
+    .stepnum span,.stepnote span,.stepnum span:not(:last-child),.stepnote span:not(:last-child){display:block;opacity:0;animation:show linear both;animation-timeline:--draw}
+    .stepnum span:nth-child(1),.stepnote span:nth-child(1){animation-range:contain 0% contain 19%}
+    .stepnum span:nth-child(2),.stepnote span:nth-child(2){animation-range:contain 19% contain 46%}
+    .stepnum span:nth-child(3),.stepnote span:nth-child(3){animation-range:contain 46% contain 70%}
+    .stepnum span:nth-child(4),.stepnote span:nth-child(4){animation-range:contain 70% contain 100%;animation-name:showstay}
+    .progress i::after{transform:scaleX(0);animation:grow linear both;animation-timeline:--draw}
+    .progress i:nth-child(1)::after{animation-range:contain 0% contain 18%}
+    .progress i:nth-child(2)::after{animation-range:contain 20% contain 45%}
+    .progress i:nth-child(3)::after{animation-range:contain 47% contain 68%}
+    .progress i:nth-child(4)::after{animation-range:contain 72% contain 88%}
+  }
+}
+@supports not (animation-timeline: view()){ .drawalong{height:auto}.pin{position:static;height:auto;padding:4rem 1.25rem} }
+@media (prefers-reduced-motion:reduce){ .drawalong{height:auto}.pin{position:static;height:auto;padding:4rem 1.25rem} }
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fadein{to{opacity:1}}
+@keyframes fadeout{to{opacity:0}}
+@keyframes grow{to{transform:scaleX(1)}}
+@keyframes show{0%{opacity:0}8%,92%{opacity:1}100%{opacity:0}}
+@keyframes showstay{0%{opacity:0}8%,100%{opacity:1}}
+
+/* ---------- inside: spreads on a strip you can swipe ---------- */
+section{padding:4.5rem 0}
+h2.display{font-size:clamp(2.2rem,9vw,4.5rem);margin:0 0 1rem}
+.lede{font-size:1.15rem;max-width:34rem;color:var(--pencil-soft)}
+.strip{display:grid;grid-auto-flow:column;grid-auto-columns:82%;gap:1rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:1.5rem 1.25rem .75rem;scroll-padding:0 1.25rem;scrollbar-width:thin}
+.strip figure{margin:0;scroll-snap-align:start}
+.spread{aspect-ratio:3/2;background:var(--stand-in);display:grid;place-items:center;font-size:.8rem;color:var(--pencil-soft);text-align:center;padding:1rem}
+.strip figcaption{font-size:.9rem;margin-top:.5rem;color:var(--pencil-soft)}
+
+/* ---------- videos: thumbnails that open YouTube ---------- */
+.videos{background:var(--mat);color:#fff;
+  background-image:linear-gradient(var(--mat-line) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line) 1px,transparent 1px);background-size:40px 40px}
+.videos .lede{color:#d6e7e0}
+.vgrid{display:grid;gap:1.5rem;margin-top:2rem}
+.vcard{display:block;text-decoration:none;color:#fff}
+.thumb{position:relative;aspect-ratio:16/9;background:#1f3f36;border:1px solid #6f9a8b;display:grid;place-items:center;font-size:.8rem;color:#b9d3c9}
+.thumb::after{content:"";position:absolute;width:3.2rem;height:3.2rem;border-radius:50%;background:#fff;
+  -webkit-mask:radial-gradient(circle,#000 99%,transparent) ;}
+.thumb::before{content:"";position:absolute;z-index:1;border-left:14px solid var(--mat);border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px}
+.dur{position:absolute;right:.4rem;bottom:.4rem;background:rgba(0,0,0,.75);font-size:.8rem;padding:.05rem .35rem;border-radius:2px;color:#fff}
+.vcard h3{font-size:1.1rem;font-weight:600;margin:.6rem 0 .1rem}
+.vcard p{margin:0;font-size:.9rem;color:#cfe3dc}
+.vcard:hover h3{text-decoration:underline}
+
+/* ---------- who / questions ---------- */
+.two{display:grid;gap:2rem}
+.two h3{font-stretch:68%;font-weight:800;font-size:1.9rem;margin:0 0 .4rem;line-height:1}
+.two p{margin:0;max-width:30rem}
+dl{margin:1rem 0 0;max-width:42rem;border-top:1px solid var(--pencil)}
+dl div{padding:1rem 0;border-bottom:1px solid #ddd8d1;display:grid;gap:.2rem}
+dt{font-weight:700}
+dd{margin:0;color:var(--pencil-soft)}
+
+/* ---------- buy block ---------- */
+.buyblock{display:grid;grid-template-columns:7rem 1fr;gap:1.25rem;align-items:center}
+.cover{aspect-ratio:17/22;background:var(--stand-in);display:grid;place-items:center;font-size:.75rem;color:var(--pencil-soft);box-shadow:0 18px 30px -14px rgba(0,0,0,.35)}
+.buyblock .display{font-size:2rem;margin:0 0 .4rem}
+.forgrownups{margin:0 0 .3rem!important;font-weight:700;color:var(--pencil)!important}
+.buyblock p{margin:0 0 1rem;color:var(--pencil-soft);font-size:.95rem}
+
+footer{background:var(--pencil);color:#e8e4de;padding:2.5rem 0 6.5rem;font-size:.9rem}
+footer a{color:#fff}
+footer .row{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin-bottom:1rem}
+.sticky{position:fixed;inset:auto 0 0 0;z-index:20;background:var(--paper);border-top:1px solid var(--pencil);padding:.65rem 1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.sticky .buy{padding:.7rem 1rem;font-size:1rem}
+.sticky span{font-size:.9rem;font-weight:600}
+
+@media (min-width:60rem){
+  .stage .wrap{display:grid;grid-template-columns:6fr 5fr;gap:3rem;align-items:center}
+  .film{margin:2.5rem 0 0}
+  .hero-copy{padding-top:0;grid-row:1;grid-column:1}
+  .stage .filmcol{grid-column:2}
+  .pin h2{font-size:clamp(3rem,5vw,4.75rem)}
+  .pin{grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-rows:auto auto auto 1fr;column-gap:4rem;align-content:center;max-width:76rem;margin:0 auto}
+  .pin .sheet{grid-column:2;grid-row:1 / span 4;width:min(100%,34rem,74svh)}
+  .strip{grid-auto-columns:42%;padding-inline:max(1.25rem,calc((100vw - 76rem)/2 + 1.25rem));scroll-padding-inline:max(1.25rem,calc((100vw - 76rem)/2 + 1.25rem))}
+  .vgrid{grid-template-columns:repeat(3,1fr)}
+  .two{grid-template-columns:1fr 1fr;gap:4rem}
+  .sticky{display:none}
+  footer{padding-bottom:2.5rem}
+}
+</style>
+</head>
+<body>
+<p class="mocknote">Mock. The hero film is a stand-in (an apple, drawn in code) for a filmed time-lapse of a real page. Grey boxes: the book's art.</p>
+
+<header class="top"><b>Pipkin Barnes</b><a href="#buy">Buy the book</a></header>
+
+<main>
+<div class="stage">
+  <div class="ruler" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="filmcol">
+      <figure class="film" aria-label="Film: a page being drawn, step by step">
+        <span class="label">Film: a real page, drawn in 12 seconds</span>
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="g s1" pathLength="1" cx="50" cy="55" r="34" fill="none" stroke="#a4dded" stroke-width="1.6"/>
+          <path class="fill" d="M50 30 C35 18 12 28 14 52 C16 78 34 92 50 86 C66 92 84 78 86 52 C88 28 65 18 50 30 Z" fill="#d9472b"/>
+          <path class="g s2" pathLength="1" d="M50 30 C35 18 12 28 14 52 C16 78 34 92 50 86 C66 92 84 78 86 52 C88 28 65 18 50 30 Z" fill="none" stroke="#2e2c29" stroke-width="2.4" stroke-linejoin="round"/>
+          <path class="g s3" pathLength="1" d="M50 30 C50 22 52 16 56 11" fill="none" stroke="#2e2c29" stroke-width="2.4" stroke-linecap="round"/>
+          <path class="g s4" pathLength="1" d="M54 20 C60 10 74 9 79 13 C73 22 61 25 54 20 Z" fill="none" stroke="#2e2c29" stroke-width="2.2" stroke-linejoin="round"/>
+        </svg>
+        <figcaption class="caption" aria-hidden="true"><span>Pip: Start with a big circle.</span><span>Pip: Dip the top, squash the bottom.</span><span>Pip: Add a stalk and a leaf.</span><span>Pip: Now colour it in!</span></figcaption>
+      </figure>
+      <div class="pip" aria-hidden="true">Pip</div>
+    </div>
+    <div class="hero-copy">
+      <h1 class="display">Watch it drawn. Then draw it yourself.</h1>
+      <p>A colouring book by Pipkin Barnes that teaches kids to draw animals and foods, one step at a time, with Pip the fox as their guide.</p>
+      <a class="buy" href="#">Buy on Amazon <small>[£9.99]</small></a>
+      <p class="facts">Paperback, [64] pages, ages [4 to 8]</p>
+    </div>
+  </div>
+</div>
+
+<section class="drawalong" aria-labelledby="da-title" style="padding:0">
+  <div class="pin">
+    <h2 id="da-title" class="display">Four steps. One apple.</h2>
+    <div class="progress" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <p class="stepnote" aria-live="off">
+      <span><b class="pipsays">Start with a big, round circle.</b> <small><em>For grown-ups:</em> light lines first, so mistakes don't matter.</small></span>
+      <span><b class="pipsays">Dip the top. Squash the bottom.</b> <small><em>For grown-ups:</em> the outline goes over the circle.</small></span>
+      <span><b class="pipsays">Add a stalk and a leaf.</b> <small><em>For grown-ups:</em> small details turn a shape into a thing.</small></span>
+      <span><b class="pipsays">Now colour it in!</b> <small><em>For grown-ups:</em> the guide lines vanish under the colour.</small></span>
+    </p>
+    <div class="sheet">
+      <div class="stepnum" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span></div>
+      <svg viewBox="0 0 100 100" role="img" aria-label="An apple drawn in four steps: a circle, the outline, a stalk and leaf, then colour">
+        <g class="guidecircle"><circle class="g s1" pathLength="1" cx="50" cy="55" r="34" fill="none" stroke="#a4dded" stroke-width="1.4"/></g>
+        <path class="fill" d="M50 30 C35 18 12 28 14 52 C16 78 34 92 50 86 C66 92 84 78 86 52 C88 28 65 18 50 30 Z" fill="#d9472b"/>
+        <path class="g s2" pathLength="1" d="M50 30 C35 18 12 28 14 52 C16 78 34 92 50 86 C66 92 84 78 86 52 C88 28 65 18 50 30 Z" fill="none" stroke="#2e2c29" stroke-width="2" stroke-linejoin="round"/>
+        <path class="g s3" pathLength="1" d="M50 30 C50 22 52 16 56 11" fill="none" stroke="#2e2c29" stroke-width="2" stroke-linecap="round"/>
+        <path class="fill" d="M54 20 C60 10 74 9 79 13 C73 22 61 25 54 20 Z" fill="#6aa84f"/>
+        <path class="g s4" pathLength="1" d="M54 20 C60 10 74 9 79 13 C73 22 61 25 54 20 Z" fill="none" stroke="#2e2c29" stroke-width="1.8" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="in-title">
+  <div class="wrap">
+    <h2 id="in-title" class="display">Inside the book</h2>
+    <p class="lede">Animals and foods, each broken into small steps, with room to colour. [List from book.md.]</p>
+  </div>
+  <div class="strip">
+    <figure><div class="spread">Spread photo 1</div><figcaption>[Animal], pages [x–y]</figcaption></figure>
+    <figure><div class="spread">Spread photo 2</div><figcaption>[Food], pages [x–y]</figcaption></figure>
+    <figure><div class="spread">Spread photo 3</div><figcaption>[Animal], pages [x–y]</figcaption></figure>
+    <figure><div class="spread">Spread photo 4</div><figcaption>[Food], pages [x–y]</figcaption></figure>
+  </div>
+</section>
+
+<section class="videos" aria-labelledby="v-title">
+  <div class="wrap">
+    <h2 id="v-title" class="display">Watch Pip draw</h2>
+    <p class="lede">Grab a pencil and draw along with Pip. Pause after each step and copy it.</p>
+    <p class="lede" style="font-size:.95rem">For grown-ups: these videos open on YouTube, in a new tab.</p>
+    <div class="vgrid">
+      <a class="vcard" href="#"><div class="thumb">Thumbnail<span class="dur">4:12</span></div><h3>[Video title]</h3><p>Opens YouTube</p></a>
+      <a class="vcard" href="#"><div class="thumb">Thumbnail<span class="dur">3:40</span></div><h3>[Video title]</h3><p>Opens YouTube</p></a>
+      <a class="vcard" href="#"><div class="thumb">Thumbnail<span class="dur">5:05</span></div><h3>[Video title]</h3><p>Opens YouTube</p></a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap two">
+    <div><h3>For parents</h3><p>Sit down and draw together, or let them get on with it. Each page shows what to draw next, so they go at their own pace.</p></div>
+    <div><h3>For teachers</h3><p>The whole class can draw the same animal at once, one step at a time. <a href="#">Teaching with Pip</a></p></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2 class="display">Questions</h2>
+    <dl>
+      <div><dt>What age is it for?</dt><dd>Kids aged [4 to 8].</dd></div>
+      <div><dt>How big is the book?</dt><dd>[Trim size], [64] pages.</dd></div>
+      <div><dt>What paper is it printed on?</dt><dd>[Paper.]</dd></div>
+      <div><dt>How does the method work?</dt><dd>Each drawing is split into small steps. Kids copy one, add the next, then colour the finished picture.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section id="buy" style="padding-top:0">
+  <div class="wrap buyblock">
+    <div class="cover">Cover</div>
+    <div><p class="forgrownups">For grown-ups</p><p class="display">[Book title]</p><p>Paperback, [64] pages, ages [4 to 8]</p><a class="buy" href="#">Buy on Amazon <small>[£9.99]</small></a></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <div class="row"><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">YouTube</a><a href="#">Pinterest</a><a href="#">Facebook</a></div>
+  <div class="row"><a href="#">Legal notice</a><a href="#">Privacy policy</a><a href="#">[contact email]</a></div>
+  <div>© 2026 Pipkin Barnes</div>
+</div></footer>
+
+<div class="sticky"><span>[Book title]</span><a class="buy" href="#">Buy on Amazon</a></div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+---
+import '@fontsource-variable/archivo/wdth.css';
+import '../styles/global.css';
+import Footer from '../components/Footer.astro';
+import StickyBuy from '../components/StickyBuy.astro';
+import { pages, type PageKey } from '../data/pages';
+import { book } from '../data/book';
+
+interface Props {
+  page: PageKey; // title, description and URL come from src/data/pages.ts
+}
+const { page } = Astro.props;
+const { title, description, path } = pages[page];
+
+// Absolute URLs need the site address (astro.config.mjs). Without it they're left out
+// rather than written as relative links, which crawlers would misread.
+const site = Astro.site;
+const canonical = site ? new URL(path, site).href : undefined;
+const ogImage = site ? new URL(`/og/${page}.png`, site).href : undefined;
+const siteName = book.title || 'Pip the fox';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#2f5d50" />
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    {site && <link rel="sitemap" href="/sitemap-index.xml" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {
+      ogImage && (
+        <>
+          <meta property="og:image" content={ogImage} />
+          <meta property="og:image:type" content="image/png" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta
+            property="og:image:alt"
+            content={book.title ? `The cover of ${book.title}, with Pip the fox` : "The book's cover, with Pip the fox"}
+          />
+        </>
+      )
+    }
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+    <Footer />
+    <StickyBuy />
+  </body>
+</html>

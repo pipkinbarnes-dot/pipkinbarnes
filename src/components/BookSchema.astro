@@ -1,0 +1,67 @@
+---
+// Book + Person structured data (schema.org JSON-LD). Only facts that are filled in
+// src/data/book.ts are included; nothing is guessed. Missing ones are listed at build time.
+import { getImage } from 'astro:assets';
+import { book, socials } from '../data/book';
+import { cover } from '../data/art';
+
+const site = Astro.site;
+const missing: string[] = [];
+const need = <T,>(value: T, label: string) => {
+  if (value === '' || value === undefined || (Array.isArray(value) && !value.length)) {
+    missing.push(label);
+    return undefined;
+  }
+  return value;
+};
+
+const sameAs = socials.filter((s) => s.url).map((s) => s.url);
+need(sameAs, 'social profile URLs (sameAs)');
+
+const person = {
+  '@type': 'Person',
+  '@id': site ? new URL('#author', site).href : undefined,
+  name: book.author,
+  sameAs: sameAs.length ? sameAs : undefined,
+};
+
+const ages = book.ageRange.match(/(\d+)\D+(\d+)/);
+const coverImage = cover && site ? new URL((await getImage({ src: cover, width: 1200, format: 'jpg' })).src, site).href : undefined;
+if (!cover) missing.push('cover image');
+
+const offer =
+  book.price && book.currency && book.amazonUrl
+    ? { '@type': 'Offer', url: book.amazonUrl, price: book.price, priceCurrency: book.currency }
+    : undefined;
+if (!offer) missing.push('offer (price, currency and Amazon link)');
+
+const bookData = {
+  '@type': 'Book',
+  '@id': site ? new URL('#book', site).href : undefined,
+  name: need(book.title, 'title'),
+  alternativeHeadline: book.subtitle || undefined,
+  author: person['@id'] ? { '@id': person['@id'] } : { '@type': 'Person', name: book.author },
+  isbn: need(book.isbn.replace(/[^0-9X]/gi, ''), 'ISBN'),
+  bookFormat: 'https://schema.org/Paperback',
+  numberOfPages: book.pageCount ? Number.parseInt(book.pageCount, 10) : need('', 'page count'),
+  datePublished: need(book.publishedDate, 'publication date'),
+  image: coverImage,
+  url: site?.href,
+  sameAs: book.amazonUrl ? [book.amazonUrl] : undefined,
+  audience: ages
+    ? { '@type': 'PeopleAudience', suggestedMinAge: Number(ages[1]), suggestedMaxAge: Number(ages[2]) }
+    : need(undefined, 'age range'),
+  offers: offer,
+};
+
+if (missing.length) console.warn(`[pip] Structured data is missing: ${missing.join(', ')}.`);
+
+// A Book without a name is invalid for search engines, so it's only published once the title is in.
+const graph = bookData.name ? [bookData, person] : [person];
+if (!bookData.name) console.warn('[pip] Book structured data is left out until the title is set.');
+
+// Escape "<" so nothing in the data can close the script tag.
+const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" set:html={json} />

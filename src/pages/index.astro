@@ -1,0 +1,413 @@
+---
+import Base from '../layouts/Base.astro';
+import Art from '../components/Art.astro';
+import BuyButton from '../components/BuyButton.astro';
+import Todo from '../components/Todo.astro';
+import BookSchema from '../components/BookSchema.astro';
+import HeroFilm from '../components/HeroFilm.astro';
+import DrawAlong from '../components/DrawAlong.astro';
+import VideoGrid from '../components/VideoGrid.astro';
+import { book, socials } from '../data/book';
+import { cover, samplePages } from '../data/art';
+
+// Spreads for the strip: real sample pages, or four empty frames until they're in
+const strip = samplePages.length
+  ? samplePages.map((p) => ({ image: p.image, alt: `A finished ${p.name} page from the book`, caption: p.name, missing: '' }))
+  : [1, 2, 3, 4].map((n) => ({
+      image: undefined,
+      alt: `Sample page ${n}`,
+      caption: '',
+      missing: `Photo of a page: assets/pages/${n % 2 ? 'animal' : 'food'}-<name>.png`,
+    }));
+
+const lists = [
+  { title: 'Animals', names: book.animals.length ? book.animals : samplePages.filter((p) => p.kind === 'animal').map((p) => p.name) },
+  { title: 'Foods', names: book.foods.length ? book.foods : samplePages.filter((p) => p.kind === 'food').map((p) => p.name) },
+];
+---
+
+<Base page="home">
+  <BookSchema slot="head" />
+
+  <header class="top on-mat">
+    <span class="top__name">{book.author}</span>
+    <a href="#buy">Buy the book</a>
+  </header>
+
+  <main>
+    <!-- Hero: a page being drawn, on the mat -->
+    <div class="hero on-mat">
+      <div class="ruler" aria-hidden="true"></div>
+      <div class="wrap hero__inner">
+        <HeroFilm />
+        <div class="hero__copy">
+          <h1>Watch it drawn. Then draw it yourself.</h1>
+          <p class="lede">
+            A colouring book by {book.author} that teaches kids to draw animals and foods, one step at a time, with Pip
+            the fox as their guide.
+          </p>
+          <BuyButton />
+          <p class="hero__facts">
+            Paperback, {book.pageCount || <Todo label="page count" />} pages, for ages {book.ageRange || <Todo label="age range" />}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <DrawAlong />
+
+    <!-- Inside the book: spreads you can swipe through -->
+    <section class="section inside" aria-labelledby="inside-title">
+      <div class="wrap">
+        <h2 id="inside-title">Inside the book</h2>
+        <p class="lede">Animals and foods, each broken into small steps, with room to colour them in.</p>
+      </div>
+      <ul class="strip">
+        {
+          strip.map((s) => (
+            <li>
+              <figure>
+                <Art image={s.image} alt={s.alt} missing={s.missing} ratio="3 / 2" sizes="(min-width: 60rem) 32rem, 82vw" />
+                {s.caption && <figcaption>{s.caption}</figcaption>}
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="wrap lists">
+        {
+          lists.map((l) => (
+            <div>
+              <h3>{l.title}</h3>
+              {l.names.length ? (
+                <ul>
+                  {l.names.map((n) => (
+                    <li>{n}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>
+                  <Todo label={`${l.title.toLowerCase()} from content/book.md`} />
+                </p>
+              )}
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Watch Pip draw: thumbnails that open YouTube -->
+    <section class="section on-mat watch" aria-labelledby="watch-title">
+      <div class="wrap">
+        <h2 id="watch-title">Watch Pip draw</h2>
+        <p class="lede">Grab a pencil and draw along with Pip. Pause after each step and copy it.</p>
+        <p class="grown-ups"><b>For grown-ups:</b> these videos open on YouTube, in a new tab.</p>
+        <VideoGrid />
+        <div class="follow">
+          <h3>Follow Pip</h3>
+          <ul>
+            {
+              socials.map((s) => (
+                <li>
+                  {s.url ? (
+                    <a href={s.url} target="_blank" rel="noopener">
+                      {s.channel}
+                      <span class="visually-hidden">(opens in a new tab)</span>
+                    </a>
+                  ) : (
+                    <>
+                      <span>{s.channel}</span> <Todo label="link" />
+                    </>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="who-title">
+      <div class="wrap">
+        <h2 id="who-title" class="visually-hidden">Who it's for</h2>
+        <div class="who">
+          <div>
+            <h3 class="who__title">For parents</h3>
+            <p>
+              Sit down and draw together, or let them get on with it. Each page shows what to draw next, so kids go at their
+              own pace and finish with a drawing that's really theirs.
+            </p>
+          </div>
+          <div>
+            <h3 class="who__title">For teachers</h3>
+            <p>The whole class can draw the same animal at once, one step at a time. <a href="/teachers">Teaching with Pip</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section faq" aria-labelledby="faq-title">
+      <div class="wrap">
+        <h2 id="faq-title">Questions</h2>
+        <dl>
+          <div>
+            <dt>What age is it for?</dt>
+            <dd>Kids aged {book.ageRange || <Todo label="age range" />}.</dd>
+          </div>
+          <div>
+            <dt>How big is the book?</dt>
+            <dd>{book.format || <Todo label="format" />}, with {book.pageCount || <Todo label="page count" />} pages.</dd>
+          </div>
+          <div>
+            <dt>What paper is it printed on?</dt>
+            <dd>{book.paper || <Todo label="paper" />}</dd>
+          </div>
+          <div>
+            <dt>How does the drawing method work?</dt>
+            <dd>
+              Each animal or food is split into small steps. Kids copy the first step, add the next, and keep going until the
+              drawing is finished. Then they colour it in. Pip the fox guides them the whole way.
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section buyblock" id="buy" aria-labelledby="buy-title">
+      <div class="wrap buyblock__inner">
+        <div class="buyblock__cover">
+          <Art image={cover} alt={`Front cover of ${book.title || 'the book'}`} missing="Cover" ratio="17 / 22" sizes="(min-width: 60rem) 14rem, 8rem" widths={[200, 320, 480]} />
+        </div>
+        <div>
+          <p class="grown-ups"><b>For grown-ups</b></p>
+          <h2 id="buy-title" class="buyblock__title">{book.title || <Todo label="book title" />}</h2>
+          <p class="buyblock__facts">
+            Paperback by {book.author}, {book.pageCount || <Todo label="page count" />} pages, for ages {book.ageRange || <Todo label="age range" />}
+          </p>
+          <BuyButton />
+        </div>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  /* ---------- running head ---------- */
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.9rem var(--gutter);
+    background-image: none;
+  }
+  .top__name {
+    font-stretch: 68%;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: 0.01em;
+  }
+  .top a {
+    font-size: var(--step--1);
+  }
+  .top :focus-visible {
+    outline-color: var(--on-mat);
+  }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding-bottom: 3rem;
+    overflow: hidden;
+  }
+  .ruler {
+    height: 22px;
+    border-bottom: 1px solid #9cc2b5;
+    background:
+      repeating-linear-gradient(90deg, #cfe3dc 0 1px, transparent 1px 40px) 0 100% / 100% 14px no-repeat,
+      repeating-linear-gradient(90deg, #9cc2b5 0 1px, transparent 1px 8px) 0 100% / 100% 6px no-repeat;
+  }
+  .hero__copy {
+    padding-top: 3rem;
+  }
+  .hero h1 {
+    font-size: clamp(3rem, 13.5vw, 7.5rem);
+    max-width: 11ch;
+  }
+  .hero .lede {
+    max-width: 30rem;
+    margin-bottom: 1.5rem;
+  }
+  .hero__facts {
+    margin: 1rem 0 0;
+    font-size: var(--step--1);
+    color: var(--on-mat-soft);
+    line-height: 1.9;
+  }
+  .hero :focus-visible {
+    outline-color: var(--on-mat);
+  }
+
+  /* ---------- inside ---------- */
+  .strip {
+    list-style: none;
+    margin: 1.75rem 0 0;
+    padding: 0 var(--gutter) 0.75rem;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 82%;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule) transparent;
+  }
+  .strip li {
+    scroll-snap-align: start;
+  }
+  .strip figure {
+    margin: 0;
+  }
+  .strip figcaption {
+    margin-top: 0.5rem;
+    font-size: var(--step--1);
+    color: var(--pencil-soft);
+    text-transform: capitalize;
+  }
+  .lists {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+  .lists ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--pencil);
+  }
+  .lists li {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--rule);
+    text-transform: capitalize;
+  }
+
+  /* ---------- watch ---------- */
+  .watch .grown-ups {
+    margin-top: -0.25rem;
+  }
+  .watch :focus-visible {
+    outline-color: var(--on-mat);
+  }
+  .follow {
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--mat-line);
+  }
+  .follow ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.75rem;
+    font-size: var(--step-1);
+    font-weight: 700;
+  }
+
+  /* ---------- who ---------- */
+  .who {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .who__title {
+    font-stretch: 68%;
+    font-weight: 800;
+    font-size: clamp(2rem, 7vw, 3rem);
+    line-height: 1;
+    margin-bottom: 0.6rem;
+  }
+
+  /* ---------- questions ---------- */
+  .faq {
+    padding-top: 0;
+  }
+  dl {
+    margin: 0;
+    max-width: 44rem;
+    border-top: 1px solid var(--pencil);
+  }
+  dl div {
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  dt {
+    font-weight: 700;
+    font-size: var(--step-1);
+    line-height: 1.3;
+  }
+  dd {
+    margin: 0.25rem 0 0;
+    color: var(--pencil-soft);
+    max-width: var(--measure);
+  }
+
+  /* ---------- buy block ---------- */
+  .buyblock {
+    padding-top: 0;
+  }
+  .buyblock__inner {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 1.25rem;
+    align-items: end;
+  }
+  .buyblock__cover :global(.art) {
+    box-shadow: 0 18px 30px -14px rgba(0, 0, 0, 0.35);
+  }
+  .buyblock .grown-ups {
+    margin-bottom: 0.4rem;
+  }
+  .buyblock__title {
+    font-size: clamp(2rem, 7vw, 3.25rem);
+    margin-bottom: 0.5rem;
+  }
+  .buyblock__facts {
+    color: var(--pencil-soft);
+    font-size: var(--step--1);
+  }
+
+  @media (min-width: 60rem) {
+    .hero {
+      padding-bottom: 5rem;
+    }
+    .hero__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: 4rem;
+      align-items: center;
+      padding-top: 3rem;
+    }
+    .hero__copy {
+      grid-row: 1;
+      grid-column: 1;
+      padding-top: 0;
+    }
+    .strip {
+      grid-auto-columns: 42%;
+      padding-inline: max(var(--gutter), calc((100vw - 76rem) / 2 + var(--gutter)));
+      scroll-padding-inline: max(var(--gutter), calc((100vw - 76rem) / 2 + var(--gutter)));
+    }
+    .lists {
+      grid-template-columns: repeat(2, minmax(0, 20rem));
+      gap: 3rem;
+    }
+    .who {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+    .buyblock__inner {
+      grid-template-columns: 14rem 1fr;
+      gap: 3rem;
+    }
+  }
+</style>

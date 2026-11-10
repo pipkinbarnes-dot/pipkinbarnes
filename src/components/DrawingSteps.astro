@@ -1,0 +1,47 @@
+---
+// The drawing itself, as layered strokes that the hero film and the draw-along animate.
+// Each layer has a class (.g = a stroke that gets drawn, .s1–.s4 = its step,
+// .fill = colour that fades in last, .guide = construction lines that fade under colour).
+// STAND-IN apple: replace with one real page's line art from the book.
+interface Props {
+  label?: string; // accessible name; omit to hide from screen readers
+  stroke?: number;
+}
+const { label, stroke = 2.2 } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 100 100"
+  class="drawing"
+  {...label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
+>
+  <g class="guide">
+    <circle class="g s1" pathLength="1" cx="50" cy="55" r="34" fill="none" stroke="#7cc6dd" stroke-width={stroke * 0.7}></circle>
+  </g>
+  <path class="fill" d="M50 30 C35 18 12 28 14 52 C16 78 34 92 50 86 C66 92 84 78 86 52 C88 28 65 18 50 30 Z" fill="#d9472b"></path>
+  <path class="fill" d="M54 20 C60 10 74 9 79 13 C73 22 61 25 54 20 Z" fill="#6aa84f"></path>
+  <path
+    class="g s2"
+    pathLength="1"
+    d="M50 30 C35 18 12 28 14 52 C16 78 34 92 50 86 C66 92 84 78 86 52 C88 28 65 18 50 30 Z"
+    fill="none"
+    stroke="#2e2c29"
+    stroke-width={stroke}
+    stroke-linejoin="round"></path>
+  <path class="g s3" pathLength="1" d="M50 30 C50 22 52 16 56 11" fill="none" stroke="#2e2c29" stroke-width={stroke} stroke-linecap="round"></path>
+  <path
+    class="g s3"
+    pathLength="1"
+    d="M54 20 C60 10 74 9 79 13 C73 22 61 25 54 20 Z"
+    fill="none"
+    stroke="#2e2c29"
+    stroke-width={stroke * 0.9}
+    stroke-linejoin="round"></path>
+</svg>
+
+<style>
+  .drawing {
+    width: 100%;
+    height: 100%;
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+import { book, socials } from '../data/book';
+import Todo from './Todo.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <nav aria-label="Pip online">
+      <ul class="footer__list">
+        {
+          socials.map((s) => (
+            <li>
+              {s.url ? (
+                <a href={s.url} target="_blank" rel="noopener">
+                  {s.channel}
+                  <span class="visually-hidden">(opens in a new tab)</span>
+                </a>
+              ) : (
+                <span>{s.channel}</span>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav aria-label="About this site">
+      <ul class="footer__list">
+        <li><a href="/legal">Legal notice</a></li>
+        <li><a href="/privacy">Privacy policy</a></li>
+        <li>
+          {book.contactEmail ? <a href={`mailto:${book.contactEmail}`}>{book.contactEmail}</a> : <Todo label="contact email" />}
+        </li>
+      </ul>
+    </nav>
+
+    <p class="footer__small">© {year} {book.author}. No cookies, no trackers.</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--pencil);
+    color: #e8e4de;
+    /* extra room at the bottom on mobile so the sticky Buy bar never covers the links */
+    padding-block: 2.5rem calc(2.5rem + 4.5rem);
+    font-size: var(--step--1);
+  }
+  @media (min-width: 60rem) {
+    .footer {
+      padding-block-end: 2.5rem;
+    }
+  }
+  .footer__inner {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .footer__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+  .footer a {
+    color: #fff;
+  }
+  .footer__small {
+    margin: 0;
+  }
+</style>

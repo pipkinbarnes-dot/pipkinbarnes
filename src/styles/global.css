@@ -1,0 +1,189 @@
+/* Pip: "On the drawing mat". See docs/design-direction.md.
+   The site sits on an illustrator's desk: a green cutting mat, white paper,
+   blue construction lines, pencil-dark text. Pip's orange is kept for Pip and Buy.
+   Palette is provisional: resample the orange from assets/pip once the art is in. */
+
+:root {
+  --mat: #2f5d50; /* self-healing cutting mat */
+  --mat-deep: #244a40;
+  --mat-line: #4f7d6f; /* the mat's printed grid */
+  --on-mat: #ffffff;
+  --on-mat-soft: #dcebe5; /* 7.5:1 on the mat */
+
+  --paper: #ffffff;
+  --pencil: #2e2c29; /* text */
+  --pencil-soft: #5f5a54; /* 6.6:1 on paper */
+  --rule: #ddd8d1;
+  --guide: #a4dded; /* non-photo blue: construction lines only, never text */
+
+  --fox: #c4511c; /* Buy and Pip. White text on it: 4.6:1 */
+  --fox-deep: #a8441a;
+  --crayon-red: #d9472b;
+  --stand-in: #ece8e2; /* empty frames until the art arrives */
+
+  --font: 'Archivo Variable', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+
+  --step--1: 0.9rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3rem;
+  --step-2: 1.6rem;
+
+  --gutter: 1.25rem;
+  --measure: 34rem;
+  --mat-grid: linear-gradient(var(--mat-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mat-line) 1px, transparent 1px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--pencil);
+  font-family: var(--font);
+  font-size: var(--step-0);
+  font-stretch: 100%;
+  line-height: 1.6;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Display type: extra-condensed and heavy, like the numbers printed on a cutting mat */
+h1,
+h2,
+.display {
+  font-stretch: 68%;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+
+h2 {
+  font-size: clamp(2.3rem, 9vw, 4.5rem);
+}
+
+h3 {
+  font-size: var(--step-1);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 0.4rem;
+}
+
+p {
+  margin: 0 0 1rem;
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: 4.5rem;
+}
+
+.on-mat {
+  background-color: var(--mat);
+  background-image: var(--mat-grid);
+  background-size: 40px 40px;
+  background-position: -1px -1px;
+  color: var(--on-mat);
+}
+
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: var(--pencil-soft);
+}
+.on-mat .lede {
+  color: var(--on-mat-soft);
+}
+
+/* "For grown-ups:" notes sit under anything Pip says to kids */
+.grown-ups {
+  font-size: var(--step--1);
+  color: var(--pencil-soft);
+}
+.grown-ups b {
+  color: var(--pencil);
+}
+.on-mat .grown-ups,
+.on-mat .grown-ups b {
+  color: var(--on-mat-soft);
+}
+
+/* Pip's tag, in front of lines Pip says to kids */
+.pip-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: 0.4em;
+  margin-right: 0.5em;
+  padding: 0.25em 0.5em;
+  border-radius: 999px;
+  background: var(--fox);
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (min-width: 60rem) {
+  :root {
+    --gutter: 2rem;
+  }
+  .section {
+    padding-block: 6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

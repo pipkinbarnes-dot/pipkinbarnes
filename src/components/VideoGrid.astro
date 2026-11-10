@@ -1,0 +1,113 @@
+---
+// "Watch Pip draw": local thumbnails that open YouTube in a new tab. No embeds.
+import { videos } from '../data/videos';
+import { videoThumbs } from '../data/art';
+import Art from './Art.astro';
+import Todo from './Todo.astro';
+
+const cards = videos.length
+  ? videos.map((v) => ({ ...v, thumb: videoThumbs.get(v.id) }))
+  : [1, 2, 3].map((n) => ({ id: `video-${n}`, title: '', url: '', duration: '', thumb: undefined }));
+---
+
+<ul class="vgrid">
+  {
+    cards.map((v) => (
+      <li>
+        <a class="vcard" href={v.url || '#'} target="_blank" rel="noopener">
+          <span class="thumb">
+            <Art
+              image={v.thumb}
+              alt=""
+              missing={`Thumbnail: assets/videos/${v.id}.jpg`}
+              ratio="16 / 9"
+              sizes="(min-width: 60rem) 23rem, 90vw"
+              widths={[360, 640, 960]}
+            />
+            <span class="play" aria-hidden="true" />
+            {v.duration && <span class="dur">{v.duration}</span>}
+          </span>
+          <span class="vcard__title">{v.title || <Todo label="video title and link" />}</span>
+          <span class="vcard__where">
+            Watch on YouTube<span class="visually-hidden"> (opens in a new tab)</span>
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .vgrid {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 2rem;
+  }
+  .vcard {
+    display: block;
+    color: var(--on-mat);
+    text-decoration: none;
+  }
+  .thumb {
+    position: relative;
+    display: block;
+    border: 1px solid var(--mat-line);
+  }
+  .thumb :global(.art--empty) {
+    background: var(--mat-deep);
+    border: 0;
+    color: var(--on-mat-soft);
+  }
+  .play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3.4rem;
+    height: 3.4rem;
+    margin: -1.7rem 0 0 -1.7rem;
+    border-radius: 50%;
+    background: var(--paper);
+  }
+  .play::after {
+    content: '';
+    position: absolute;
+    left: 53%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-left: 15px solid var(--mat);
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+  }
+  .dur {
+    position: absolute;
+    right: 0.4rem;
+    bottom: 0.4rem;
+    background: rgba(0, 0, 0, 0.78);
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 0 0.35rem;
+    border-radius: 2px;
+  }
+  .vcard__title {
+    display: block;
+    margin-top: 0.7rem;
+    font-size: var(--step-1);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .vcard__where {
+    display: block;
+    font-size: var(--step--1);
+    color: var(--on-mat-soft);
+  }
+  .vcard:hover .vcard__title {
+    text-decoration: underline;
+  }
+  @media (min-width: 60rem) {
+    .vgrid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
