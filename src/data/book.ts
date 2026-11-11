@@ -11,7 +11,7 @@ export const book = {
   pageCount: '106', // e.g. "64"
   format: '8.5 × 11 in paperback', // trim size, e.g. "8.5 × 11 in paperback"
   paper: 'white', // e.g. "white, single-sided pages"
-  isbn: '', // ISBN-13 of the paperback, digits only or with hyphens
+  isbn: '', // ISBN-13 of the paperback (starts 978 or 979), from the Amazon page's "ISBN-13" line. Not the ASIN (B0HR5RD25H).
   publishedDate: '11/07/2026', // YYYY-MM-DD
   price: '9.99', // number only, e.g. "9.99"
   currency: 'USD', // ISO code, e.g. "GBP" or "USD"

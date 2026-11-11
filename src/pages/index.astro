@@ -4,11 +4,11 @@ import Art from '../components/Art.astro';
 import BuyButton from '../components/BuyButton.astro';
 import Todo from '../components/Todo.astro';
 import BookSchema from '../components/BookSchema.astro';
-import HeroFilm from '../components/HeroFilm.astro';
+import { Image } from 'astro:assets';
 import DrawAlong from '../components/DrawAlong.astro';
 import VideoGrid from '../components/VideoGrid.astro';
 import { book, socials } from '../data/book';
-import { cover, samplePages } from '../data/art';
+import { cover, samplePages, banner } from '../data/art';
 
 // Spreads for the strip: real sample pages, or four empty frames until they're in
 const strip = samplePages.length
@@ -38,13 +38,24 @@ const lists = [
   </header>
 
   <main>
-    <!-- Hero: a page being drawn, on the mat -->
+    <!-- Hero: the book's banner on its own sky blue, then the title and Buy -->
     <div class="hero on-mat">
-      <div class="ruler" aria-hidden="true"></div>
+      {
+        banner && (
+          <Image
+            src={banner}
+            alt={`“Watch them say ‘I drew that!’” next to the book ${book.title}, with Pip the fox holding a giant pencil`}
+            widths={[640, 960, 1280, 1920, 2600].filter((w) => w <= banner.width)}
+            sizes="(min-width: 90rem) 90rem, 100vw"
+            loading="eager"
+            fetchpriority="high"
+            class="hero__banner"
+          />
+        )
+      }
       <div class="wrap hero__inner">
-        <HeroFilm />
         <div class="hero__copy">
-          <h1>Watch it drawn. Then draw it yourself.</h1>
+          <h1>{mainTitle}{series && <span class="hero__series"><span class="visually-hidden"> - </span>{series}</span>}</h1>
           <p class="lede">
             A coloring book by {book.author} that teaches kids to draw animals and foods, one step at a time, with Pip
             the fox as their guide.
@@ -163,7 +174,7 @@ const lists = [
           </div>
           <div>
             <dt>What paper is it printed on?</dt>
-            <dd>{book.paper || <Todo label="paper" />}</dd>
+            <dd>{book.paper ? `${book.paper[0].toUpperCase()}${book.paper.slice(1)}${/[.!?]$/.test(book.paper) ? '' : '.'}` : <Todo label="paper" />}</dd>
           </div>
           <div>
             <dt>How does the drawing method work?</dt>
@@ -225,19 +236,32 @@ const lists = [
     padding-bottom: 3rem;
     overflow: hidden;
   }
-  .ruler {
-    height: 22px;
-    border-bottom: 1px solid #9cc2b5;
-    background:
-      repeating-linear-gradient(90deg, #cfe3dc 0 1px, transparent 1px 40px) 0 100% / 100% 14px no-repeat,
-      repeating-linear-gradient(90deg, #9cc2b5 0 1px, transparent 1px 8px) 0 100% / 100% 6px no-repeat;
+  .hero__banner {
+    display: block;
+    width: 100%;
+    /* never taller than ~60% of the screen, so the title and Buy stay in view;
+       the banner's edges are the same sky blue, so it blends at any width */
+    max-width: min(90rem, 100vh);
+    height: auto;
+    margin-inline: auto;
   }
   .hero__copy {
-    padding-top: 3rem;
+    padding-top: 1.5rem;
   }
   .hero h1 {
-    font-size: clamp(3rem, 13.5vw, 7.5rem);
-    max-width: 11ch;
+    font-size: clamp(2.6rem, 11vw, 5rem);
+    max-width: 16ch;
+  }
+  .hero__series {
+    display: block;
+    font-stretch: 100%;
+    font-size: var(--step-2);
+    font-weight: 700;
+    letter-spacing: 0;
+    margin-top: 0.4rem;
+  }
+  .hero .lede {
+    color: var(--on-mat-soft);
   }
   .hero .lede {
     max-width: 30rem;
@@ -395,17 +419,20 @@ const lists = [
     .hero {
       padding-bottom: 5rem;
     }
-    .hero__inner {
-      display: grid;
-      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-      gap: 4rem;
-      align-items: center;
-      padding-top: 3rem;
-    }
     .hero__copy {
-      grid-row: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: 4rem;
+      align-items: end;
+      padding-top: 2.5rem;
+    }
+    .hero__copy h1 {
       grid-column: 1;
-      padding-top: 0;
+      grid-row: 1 / span 2;
+      margin: 0;
+    }
+    .hero__copy > :not(h1) {
+      grid-column: 2;
     }
     .strip {
       grid-auto-columns: 42%;

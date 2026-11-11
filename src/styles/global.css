@@ -1,23 +1,23 @@
-/* Pip: "On the drawing mat". See docs/design-direction.md.
-   The site sits on an illustrator's desk: a green cutting mat, white paper,
-   blue construction lines, pencil-dark text. Pip's orange is kept for Pip and Buy.
-   Palette is provisional: resample the orange from assets/pip once the art is in. */
+/* Pip website styles. See docs/design-direction.md.
+   Colors come from the book's banner: sky blue sections, white paper,
+   navy text, Pip's orange for Buy and Pip's tag. */
 
 :root {
-  --mat: #2f5d50; /* self-healing cutting mat */
-  --mat-deep: #244a40;
-  --mat-line: #4f7d6f; /* the mat's printed grid */
-  --on-mat: #ffffff;
-  --on-mat-soft: #dcebe5; /* 7.5:1 on the mat */
+  /* Colors sampled from the banner (assets/backgrounds/banner.jpg) */
+  --mat: #68c8f2; /* the banner's sky blue: hero and video sections */
+  --mat-deep: #4fb6e4;
+  --mat-line: #1e1a3c;
+  --on-mat: #1e1a3c; /* navy text on the blue: 9:1 */
+  --on-mat-soft: #2f2b55; /* 7:1 on the blue */
 
   --paper: #ffffff;
-  --pencil: #2e2c29; /* text */
-  --pencil-soft: #5f5a54; /* 6.6:1 on paper */
+  --pencil: #1e1a3c; /* the banner's navy, for all text */
+  --pencil-soft: #4a4668; /* 8:1 on paper */
   --rule: #ddd8d1;
   --guide: #a4dded; /* non-photo blue: construction lines only, never text */
 
-  --fox: #c4511c; /* Buy and Pip. White text on it: 4.6:1 */
-  --fox-deep: #a8441a;
+  --fox: #f47822; /* Pip's orange, from the banner. Navy text on it: 6:1 */
+  --fox-deep: #e0661a;
   --crayon-red: #d9472b;
   --stand-in: #ece8e2; /* empty frames until the art arrives */
 
@@ -116,9 +116,6 @@ a {
 
 .on-mat {
   background-color: var(--mat);
-  background-image: var(--mat-grid);
-  background-size: 40px 40px;
-  background-position: -1px -1px;
   color: var(--on-mat);
 }
 
@@ -155,7 +152,7 @@ a {
   padding: 0.25em 0.5em;
   border-radius: 999px;
   background: var(--fox);
-  color: #fff;
+  color: var(--pencil);
   letter-spacing: 0.02em;
 }
 

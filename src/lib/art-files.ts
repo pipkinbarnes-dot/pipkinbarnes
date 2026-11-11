@@ -27,10 +27,10 @@ export function warnOnce(message: string) {
   console.warn(`[pip] ${message}`);
 }
 
-export const MAT = '#2f5d50';
-export const MAT_LINE = '#4f7d6f';
-export const PENCIL = '#2e2c29';
-export const FOX = '#c4511c';
+export const MAT = '#68c8f2'; // the banner's sky blue
+export const MAT_LINE = '#8fd6f5';
+export const PENCIL = '#1e1a3c';
+export const FOX = '#f47822';
 
 export const png = (buf: Buffer) =>
   new Response(new Uint8Array(buf), { headers: { 'Content-Type': 'image/png' } });

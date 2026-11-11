@@ -1,5 +1,12 @@
 # Design direction: "On the drawing mat"
 
+> **Update 2026-11-11:** at the user's request the green mat was replaced by the
+> book's banner (assets/backgrounds/banner.jpg) and its colors: sky blue `#68c8f2`
+> for the hero and video sections, navy `#1e1a3c` for text, Pip's orange `#f47822`
+> for Buy (navy text). The hero is now the banner, then the title and Buy; the
+> hero film component (src/components/HeroFilm.astro) is kept for when real
+> footage exists. The rest of this document still applies.
+
 Chosen 2026-11-11, replacing the earlier honey "Open the book" direction, which
 read as generic. Mockup: docs/mockups/drawing-mat-home.html.
 

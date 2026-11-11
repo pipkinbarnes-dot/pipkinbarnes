@@ -26,6 +26,26 @@ const person = {
 };
 
 const ages = book.ageRange.match(/(\d+)\D+(\d+)/);
+
+// ISBN: 10 or 13 characters with a valid check digit, otherwise left out
+function validIsbn(raw: string) {
+  const s = raw.replace(/[-\s]/g, '').toUpperCase();
+  if (/^\d{13}$/.test(s)) {
+    const sum = [...s].reduce((t, d, i) => t + Number(d) * (i % 2 ? 3 : 1), 0);
+    return sum % 10 === 0 ? s : undefined;
+  }
+  if (/^\d{9}[\dX]$/.test(s)) {
+    const sum = [...s].reduce((t, d, i) => t + (d === 'X' ? 10 : Number(d)) * (10 - i), 0);
+    return sum % 11 === 0 ? s : undefined;
+  }
+  return undefined;
+}
+const isbn = book.isbn ? validIsbn(book.isbn) : undefined;
+if (book.isbn && !isbn) console.warn(`[pip] "${book.isbn}" isn't a valid ISBN, so it's left out of the structured data.`);
+
+// Date: only YYYY-MM-DD is unambiguous
+const published = /^\d{4}-\d{2}-\d{2}$/.test(book.publishedDate) ? book.publishedDate : undefined;
+if (book.publishedDate && !published) console.warn(`[pip] Publication date "${book.publishedDate}" must be YYYY-MM-DD, so it's left out.`);
 const coverImage = cover && site ? new URL((await getImage({ src: cover, width: 1200, format: 'jpg' })).src, site).href : undefined;
 if (!cover) missing.push('cover image');
 
@@ -41,10 +61,10 @@ const bookData = {
   name: need(book.title, 'title'),
   alternativeHeadline: book.subtitle || undefined,
   author: person['@id'] ? { '@id': person['@id'] } : { '@type': 'Person', name: book.author },
-  isbn: need(book.isbn.replace(/[^0-9X]/gi, ''), 'ISBN'),
+  isbn: need(isbn ?? '', 'ISBN'),
   bookFormat: 'https://schema.org/Paperback',
   numberOfPages: book.pageCount ? Number.parseInt(book.pageCount, 10) : need('', 'page count'),
-  datePublished: need(book.publishedDate, 'publication date'),
+  datePublished: need(published ?? '', 'publication date'),
   image: coverImage,
   url: site?.href,
   sameAs: book.amazonUrl ? [book.amazonUrl] : undefined,

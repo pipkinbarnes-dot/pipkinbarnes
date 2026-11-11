@@ -21,6 +21,10 @@ function pick(mods: Record<string, Mod>, preferred: string) {
 export const cover = pick(covers, 'cover');
 export const pip = pick(pips, 'pip');
 
+// assets/backgrounds/banner.jpg: the hero banner (book, Pip and headline on sky blue)
+const backgrounds = import.meta.glob<Mod>('/assets/backgrounds/*.{png,jpg,jpeg,webp,avif}', { eager: true });
+export const banner = pick(backgrounds, 'banner');
+
 export type Step = { n: number; image: ImageMetadata };
 
 // steps-<subject>-<n>.png  →  one step-by-step sequence per subject

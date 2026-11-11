@@ -1,5 +1,5 @@
-// Open Graph cards, 1200 × 630: the cover on the green cutting mat, with Pip beside it,
-// like the home page hero. One per page in src/data/pages.ts, at /og/<page>.png.
+// Open Graph cards, 1200 × 630: the banner if there is one; otherwise the cover
+// and Pip composed on the site's background color. One per page in src/data/pages.ts, at /og/<page>.png.
 import type { APIRoute, GetStaticPaths } from 'astro';
 import sharp from 'sharp';
 import { pages } from '../../data/pages';
@@ -14,6 +14,13 @@ let cached: Buffer | undefined;
 
 async function card(): Promise<Buffer> {
   if (cached) return cached;
+
+  // The banner (book + Pip + headline on sky blue) already is a share card: just fit it to 1200 × 630.
+  const bannerPath = findArt('backgrounds', ['banner']);
+  if (bannerPath) {
+    cached = await sharp(bannerPath).resize(W, H, { fit: 'cover', position: 'centre' }).png({ compressionLevel: 9 }).toBuffer();
+    return cached;
+  }
   const layers: sharp.OverlayOptions[] = [];
 
   // The mat's printed grid and a ruler along the top edge, as on the hero
