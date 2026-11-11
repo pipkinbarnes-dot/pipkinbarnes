@@ -1,39 +1,80 @@
-/* Pip website styles. See docs/design-direction.md.
-   Colors come from the book's banner: sky blue sections, white paper,
-   navy text, Pip's orange for Buy and Pip's tag. */
+/* Pip website: "bold and easy" kawaii styles.
+   Thick navy line art (like the book's own outlines), rounded type, an 8px grid.
+   Colors are sampled from the book's banner and pages. See docs/design-direction.md. */
 
+/* ---------- 1. Tokens ---------- */
 :root {
-  /* Colors sampled from the banner (assets/backgrounds/banner.jpg) */
-  --mat: #68c8f2; /* the banner's sky blue: hero and video sections */
-  --mat-deep: #4fb6e4;
-  --mat-line: #1e1a3c;
-  --on-mat: #1e1a3c; /* navy text on the blue: 9:1 */
-  --on-mat-soft: #2f2b55; /* 7:1 on the blue */
-
+  /* Color (all text pairs checked for WCAG AA) */
+  --sky: #68c8f2; /* the banner's background */
+  --sky-soft: #d9f1fc;
+  --ink: #1e1a3c; /* the banner's navy: text and every outline */
+  --ink-soft: #4a4668; /* 8:1 on white */
   --paper: #ffffff;
-  --pencil: #1e1a3c; /* the banner's navy, for all text */
-  --pencil-soft: #4a4668; /* 8:1 on paper */
-  --rule: #ddd8d1;
-  --guide: #a4dded; /* non-photo blue: construction lines only, never text */
+  --tangerine: #f47822; /* Pip's orange: Buy. Navy text on it 6:1 */
+  --tangerine-deep: #e0661a;
+  --tomato: #e9483b; /* crayon red, accents only */
+  --sun: #ffd23f; /* pencil yellow, accents only */
+  --leaf: #6ab04c;
+  --rule: #e6e3ef;
 
-  --fox: #f47822; /* Pip's orange, from the banner. Navy text on it: 6:1 */
-  --fox-deep: #e0661a;
-  --crayon-red: #d9472b;
-  --stand-in: #ece8e2; /* empty frames until the art arrives */
+  /* Legacy names still used by a few components */
+  --mat: var(--sky);
+  --mat-deep: #4fb6e4;
+  --mat-line: var(--ink);
+  --on-mat: var(--ink);
+  --on-mat-soft: #2f2b55;
+  --pencil: var(--ink);
+  --pencil-soft: var(--ink-soft);
+  --fox: var(--tangerine);
+  --fox-deep: var(--tangerine-deep);
+  --stand-in: #eef6fb;
+  --guide: #7cc6dd;
 
-  --font: 'Archivo Variable', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  /* Type: Fredoka (rounded, like the book's lettering) for headings, Nunito for reading */
+  --font-display: 'Fredoka Variable', 'Fredoka', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --font-body: 'Nunito Variable', 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font: var(--font-body);
 
-  --step--1: 0.9rem;
-  --step-0: 1.0625rem;
-  --step-1: 1.3rem;
-  --step-2: 1.6rem;
+  /* Type scale (1.25), all line-heights land on the 8px grid */
+  --step--1: 0.875rem; /* 14px */
+  --step-0: 1.125rem; /* 18px body */
+  --step-1: 1.375rem; /* 22px */
+  --step-2: 1.75rem; /* 28px */
+  --step-3: 2.25rem; /* 36px */
+  --step-4: 3rem; /* 48px */
+  --step-5: 3.75rem; /* 60px */
 
-  --gutter: 1.25rem;
-  --measure: 34rem;
-  --mat-grid: linear-gradient(var(--mat-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--mat-line) 1px, transparent 1px);
+  /* Space: 8px modular scale */
+  --s1: 0.5rem; /* 8 */
+  --s2: 1rem; /* 16 */
+  --s3: 1.5rem; /* 24 */
+  --s4: 2rem; /* 32 */
+  --s5: 2.5rem; /* 40 */
+  --s6: 3rem; /* 48 */
+  --s8: 4rem; /* 64 */
+  --s10: 5rem; /* 80 */
+  --s12: 6rem; /* 96 */
+
+  /* Line art */
+  --line: 4px solid var(--ink);
+  --line-thin: 3px solid var(--ink);
+  --sticker: 6px 6px 0 var(--ink); /* hard offset shadow, like a sticker */
+  --radius: 16px;
+  --radius-lg: 24px;
+
+  /* Layout */
+  --gutter: var(--s2);
+  --container: 72rem; /* 1152px */
+  --measure: 36rem;
 }
 
+@media (min-width: 60rem) {
+  :root {
+    --gutter: var(--s4);
+  }
+}
+
+/* ---------- 2. Base ---------- */
 *,
 *::before,
 *::after {
@@ -48,11 +89,12 @@ html {
 body {
   margin: 0;
   background: var(--paper);
-  color: var(--pencil);
-  font-family: var(--font);
+  color: var(--ink);
+  font-family: var(--font-body);
   font-size: var(--step-0);
-  font-stretch: 100%;
-  line-height: 1.6;
+  font-weight: 500;
+  line-height: 1.75rem; /* 28px: 8px grid */
+  -webkit-font-smoothing: antialiased;
 }
 
 img,
@@ -63,78 +105,117 @@ video {
   height: auto;
 }
 
-/* Display type: extra-condensed and heavy, like the numbers printed on a cutting mat */
+/* Crisp art on Retina: never let the browser smooth scaled line art into mush */
+img {
+  image-rendering: auto;
+}
+
+/* ---------- 3. Typography ---------- */
 h1,
 h2,
+h3,
 .display {
-  font-stretch: 68%;
-  font-weight: 800;
-  line-height: 0.95;
-  letter-spacing: -0.005em;
-  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0;
+  margin: 0 0 var(--s2);
   text-wrap: balance;
 }
 
+h1 {
+  font-size: clamp(var(--step-3), 8vw, var(--step-5));
+  line-height: 1.1;
+}
+
 h2 {
-  font-size: clamp(2.3rem, 9vw, 4.5rem);
+  font-size: clamp(var(--step-2), 6vw, var(--step-4));
+  line-height: 1.15;
 }
 
 h3 {
   font-size: var(--step-1);
-  font-weight: 700;
-  line-height: 1.25;
-  margin: 0 0 0.4rem;
+  line-height: 2rem;
+  margin-bottom: var(--s1);
 }
 
 p {
-  margin: 0 0 1rem;
+  margin: 0 0 var(--s2);
   max-width: var(--measure);
   text-wrap: pretty;
 }
 
 a {
   color: inherit;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+strong,
+b {
+  font-weight: 800;
 }
 
 :focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
+  outline: 4px solid var(--tomato);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
+/* ---------- 4. Layout ---------- */
 .wrap {
   width: 100%;
-  max-width: 76rem;
+  max-width: calc(var(--container) + 2 * var(--gutter));
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
 .section {
-  padding-block: 4.5rem;
+  padding-block: var(--s8);
+}
+
+/* Thick line between paper sections, like a panel border in the book */
+.section + .section:not(.on-mat) {
+  border-top: var(--line);
+}
+
+@media (min-width: 60rem) {
+  .section {
+    padding-block: var(--s12);
+  }
 }
 
 .on-mat {
-  background-color: var(--mat);
-  color: var(--on-mat);
+  background-color: var(--sky);
+  color: var(--ink);
 }
 
 .lede {
   font-size: var(--step-1);
-  line-height: 1.45;
-  color: var(--pencil-soft);
+  line-height: 2rem;
+  color: var(--ink-soft);
 }
 .on-mat .lede {
   color: var(--on-mat-soft);
 }
 
+/* ---------- 5. Components shared across sections ---------- */
+
+/* Card: a sticker with a thick outline */
+.card {
+  background: var(--paper);
+  border: var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--sticker);
+}
+
 /* "For grown-ups:" notes sit under anything Pip says to kids */
 .grown-ups {
   font-size: var(--step--1);
-  color: var(--pencil-soft);
+  line-height: 1.5rem;
+  color: var(--ink-soft);
 }
 .grown-ups b {
-  color: var(--pencil);
+  color: var(--ink);
 }
 .on-mat .grown-ups,
 .on-mat .grown-ups b {
@@ -144,16 +225,17 @@ a {
 /* Pip's tag, in front of lines Pip says to kids */
 .pip-tag {
   display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
   line-height: 1;
-  vertical-align: 0.4em;
-  margin-right: 0.5em;
-  padding: 0.25em 0.5em;
+  vertical-align: 0.3em;
+  margin-right: var(--s1);
+  padding: 4px 8px;
+  border: var(--line-thin);
   border-radius: 999px;
-  background: var(--fox);
-  color: var(--pencil);
-  letter-spacing: 0.02em;
+  background: var(--tangerine);
+  color: var(--ink);
 }
 
 .visually-hidden {
@@ -165,15 +247,7 @@ a {
   white-space: nowrap;
 }
 
-@media (min-width: 60rem) {
-  :root {
-    --gutter: 2rem;
-  }
-  .section {
-    padding-block: 6rem;
-  }
-}
-
+/* ---------- 6. Motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

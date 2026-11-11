@@ -11,7 +11,7 @@ export const drawAlong = {
   subject: 'an apple',
   steps: [
     {
-      pip: 'Start with a big, round circle.',
+      pip: 'Start with a circle!', // the book's own first step
       grownUps: "Light lines first, so mistakes don't matter.",
       tool: 'blue pencil',
       color: '#7cc6dd',

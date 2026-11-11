@@ -1,5 +1,6 @@
 ---
 // Every Buy button: the same Amazon link, new tab, rel="noopener".
+// Oversized tangerine pill with a thick navy outline (navy on tangerine: 6:1).
 import { book } from '../data/book';
 import Todo from './Todo.astro';
 
@@ -7,17 +8,21 @@ interface Props {
   label?: string;
   showPrice?: boolean;
   showMissing?: boolean; // show the [Amazon link] marker while the link is missing
+  size?: 'large' | 'small';
 }
-const { label = 'Buy on Amazon', showPrice = true, showMissing = true } = Astro.props;
+const { label = 'Buy on Amazon', showPrice = true, showMissing = true, size = 'large' } = Astro.props;
 const href = book.amazonUrl || '#';
-const price = book.price && book.currency ? new Intl.NumberFormat('en', { style: 'currency', currency: book.currency }).format(Number(book.price)) : '';
+const price =
+  book.price && book.currency
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: book.currency }).format(Number(book.price))
+    : '';
 ---
 
 <div class="buy">
-  <a class="buy__button" href={href} target="_blank" rel="noopener">
+  <a class:list={['buy__button', `buy__button--${size}`]} href={href} target="_blank" rel="noopener">
     {label}
     {showPrice && price && <span class="buy__price">{price}</span>}
-    <span class="visually-hidden">(opens in a new tab)</span>
+    <span class="visually-hidden">(opens Amazon in a new tab)</span>
   </a>
   {showMissing && !book.amazonUrl && <Todo label="Amazon link" />}
 </div>
@@ -27,25 +32,57 @@ const price = book.price && book.currency ? new Intl.NumberFormat('en', { style:
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem 0.75rem;
+    gap: var(--s1) var(--s2);
   }
   .buy__button {
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    padding: 0.9rem 1.3rem;
-    background: var(--fox);
-    color: var(--pencil);
-    font-weight: 700;
-    font-size: 1.1rem;
-    line-height: 1.2;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s2);
+    min-height: 3.5rem; /* 56px: big, easy target */
+    padding: 0 var(--s4);
+    background: var(--tangerine);
+    color: var(--ink);
+    border: var(--line);
+    border-radius: 999px;
+    box-shadow: 0 6px 0 var(--ink);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--step-1);
+    line-height: 1;
     text-decoration: none;
-    border-radius: 2px;
+    white-space: nowrap;
+    transition:
+      transform 120ms ease,
+      box-shadow 120ms ease,
+      background-color 120ms ease;
   }
   .buy__button:hover {
-    background: var(--fox-deep);
+    background: var(--tangerine-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 var(--ink);
+  }
+  .buy__button:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 var(--ink);
+  }
+  .buy__button--small {
+    min-height: 3rem; /* 48px */
+    padding: 0 var(--s3);
+    font-size: var(--step-0);
+    box-shadow: 0 4px 0 var(--ink);
   }
   .buy__price {
-    font-weight: 500;
+    padding: 4px var(--s1);
+    border-radius: 999px;
+    background: var(--paper);
+    border: var(--line-thin);
+    font-size: 0.85em;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .buy__button:hover,
+    .buy__button:active {
+      transform: none;
+    }
   }
 </style>

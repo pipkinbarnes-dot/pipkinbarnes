@@ -1,5 +1,13 @@
 # Design direction: "On the drawing mat"
 
+> **Update 2026-11-12: "bold and easy" kawaii.** At the user's request the site now
+> uses thick 4px navy line art on every card, button and section divider, a hard
+> 6px "sticker" shadow, rounded Fredoka headings with Nunito body text, an 8px
+> spacing scale (tokens --s1…--s12 in src/styles/global.css), oversized tangerine
+> pill Buy buttons (pinned in the top bar on desktop, bottom bar on phones), a
+> swipeable carousel of the book's pages, and a video gallery with playful hover.
+> This supersedes the "no pill buttons / no offset shadows" rules below.
+
 > **Update 2026-11-11:** at the user's request the green mat was replaced by the
 > book's banner (assets/backgrounds/banner.jpg) and its colors: sky blue `#68c8f2`
 > for the hero and video sections, navy `#1e1a3c` for text, Pip's orange `#f47822`

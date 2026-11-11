@@ -12,7 +12,11 @@ Use the largest originals you have: the site resizes and compresses them itself.
 | `pages/` | `animal-<name>.png` | A finished animal page, e.g. `animal-hedgehog.png` |
 | `pages/` | `food-<name>.png` | A finished food page, e.g. `food-strawberry.png` |
 | `printable/` | `free-page.pdf` + `free-page.png` | The free printable and a preview image of it |
-| `videos/` | `<id>.jpg` | Thumbnail for each YouTube video listed in `src/data/videos.ts` (same `<id>`) |
+| `videos/` | `<id>.jpg` | Still thumbnail for each YouTube video listed in `src/data/videos.ts` (same `<id>`), 16:9 |
+| `lesson/` | `lesson.svg` (or a large .png) | Optional: a crisp step-by-step lesson graphic; it replaces the animated apple in "Four steps. One apple." |
+
+Optional looping video previews go in `public/videos/<id>.webp` (animated WebP, 16:9, under ~500 KB).
+Visitors who've asked for less motion see the still thumbnail instead.
 
 ## The hero film (goes in `public/video/`, not here)
 

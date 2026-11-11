@@ -1,26 +1,18 @@
 ---
+import { Image, getImage } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Art from '../components/Art.astro';
 import BuyButton from '../components/BuyButton.astro';
 import Todo from '../components/Todo.astro';
 import BookSchema from '../components/BookSchema.astro';
-import { getImage } from 'astro:assets';
 import DrawAlong from '../components/DrawAlong.astro';
 import VideoGrid from '../components/VideoGrid.astro';
 import { book, socials } from '../data/book';
 import { cover, samplePages, banner } from '../data/art';
 
-// Spreads for the strip: real sample pages, or four empty frames until they're in
-const strip = samplePages.length
-  ? samplePages.map((p) => ({ image: p.image, alt: `A finished ${p.name} page from the book`, caption: p.name, missing: '' }))
-  : [1, 2, 3, 4].map((n) => ({
-      image: undefined,
-      alt: `Sample page ${n}`,
-      caption: '',
-      missing: `Photo of a page: assets/pages/${n % 2 ? 'animal' : 'food'}-<name>.png`,
-    }));
+const cap = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 
-// "Main title - Series" is shown as two lines in the buy block
+// "Main title - Series" is shown as two lines
 const [mainTitle, series] = book.title.includes(' - ') ? book.title.split(' - ') : [book.title, ''];
 
 // The banner as a CSS background: a small file for phones, a large one for big screens
@@ -28,70 +20,129 @@ const bannerSm = banner ? await getImage({ src: banner, width: 960, format: 'web
 const bannerLg = banner ? await getImage({ src: banner, width: 1920, format: 'webp' }) : undefined;
 const bannerVars = bannerSm && bannerLg ? `--banner-sm: url(${bannerSm.src}); --banner-lg: url(${bannerLg.src});` : '';
 
+// Carousel: the book's pages (assets/pages), animals first
+const slides = [...samplePages].sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'animal' ? -1 : 1));
+const alt = (name: string, kind: string) =>
+  `How to draw ${/^[aeiou]/i.test(name) ? 'an' : 'a'} ${name} step by step: ${kind === 'animal' ? 'an animal' : 'a food'} drawing lesson and coloring page from Draw It, Then Color It!, a kids drawing book with Pip the fox`;
+
 const lists = [
-  { title: 'Animals', names: book.animals.length ? book.animals : samplePages.filter((p) => p.kind === 'animal').map((p) => p.name) },
-  { title: 'Foods', names: book.foods.length ? book.foods : samplePages.filter((p) => p.kind === 'food').map((p) => p.name) },
+  { title: 'Animals', names: book.animals.length ? book.animals : slides.filter((p) => p.kind === 'animal').map((p) => p.name) },
+  { title: 'Foods', names: book.foods.length ? book.foods : slides.filter((p) => p.kind === 'food').map((p) => p.name) },
 ];
 ---
 
 <Base page="home">
   <BookSchema slot="head" />
 
-  <header class="top on-mat">
-    <span class="top__name">{book.author}</span>
-    <a href="#buy">Buy the book</a>
+  <!-- Top bar: pinned on wider screens, with the Buy pill always in reach -->
+  <header class="top">
+    <div class="wrap top__inner">
+      <span class="top__name">{book.author}</span>
+      <div class="top__buy" data-top-buy>
+        <BuyButton size="small" showPrice={false} showMissing={false} />
+      </div>
+      <a class="top__link" href="#buy">Buy the book</a>
+    </div>
   </header>
 
   <main>
-    <!-- Hero: the book's banner as the background, with the title and Buy on top -->
-    <div class="hero on-mat" style={bannerVars}>
+    <!-- Hero: the book's banner as the background, title and Buy on a card -->
+    <section class="hero on-mat" style={bannerVars} aria-labelledby="hero-title">
       <span class="visually-hidden">
         Banner: “Watch them say ‘I drew that!’” next to the book {book.title}, with Pip the fox holding a giant pencil.
       </span>
-      <div class="wrap hero__inner">
-        <div class="hero__copy">
-          <h1>{mainTitle}{series && <span class="hero__series"><span class="visually-hidden"> - </span>{series}</span>}</h1>
-          <p class="lede">
-            A coloring book by {book.author} that teaches kids to draw animals and foods, one step at a time, with Pip
-            the fox as their guide.
-          </p>
-          <BuyButton />
-          <p class="hero__facts">
-            Paperback, {book.pageCount || <Todo label="page count" />} pages, for ages {book.ageRange || <Todo label="age range" />}
-          </p>
+      <div class="wrap">
+        <div class="hero__card card">
+          <h1 id="hero-title">
+            {mainTitle}
+            {series && <span class="visually-hidden"> - </span>}
+            {series && <span class="hero__series">{series}</span>}
+          </h1>
+          <div class="hero__body">
+            <p class="hero__lede">
+              A step-by-step drawing book and coloring book: kids learn how to draw animals and yummy foods with Pip the fox,
+              then color them in.
+            </p>
+            <BuyButton />
+            <p class="hero__facts">
+              Paperback, {book.pageCount || <Todo label="page count" />} pages, ages {book.ageRange || <Todo label="age range" />}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <DrawAlong />
 
-    <!-- Inside the book: spreads you can swipe through -->
+    <!-- Inside the book: a swipeable carousel of real pages -->
     <section class="section inside" aria-labelledby="inside-title">
       <div class="wrap">
-        <h2 id="inside-title">Inside the book</h2>
-        <p class="lede">Animals and foods, each broken into small steps, with room to color them in.</p>
+        <div class="inside__head">
+          <div>
+            <h2 id="inside-title">Inside the book</h2>
+            <p class="lede">Every page shows how to draw it, one step at a time, with room to try it and color it in.</p>
+          </div>
+          {
+            slides.length > 1 && (
+              <div class="carousel__nav">
+                <button class="round-btn" type="button" data-carousel-prev aria-label="Previous page">
+                  <span aria-hidden="true">←</span>
+                </button>
+                <button class="round-btn" type="button" data-carousel-next aria-label="Next page">
+                  <span aria-hidden="true">→</span>
+                </button>
+              </div>
+            )
+          }
+        </div>
       </div>
-      <ul class="strip">
-        {
-          strip.map((s) => (
-            <li>
-              <figure>
-                <Art image={s.image} alt={s.alt} missing={s.missing} ratio="3 / 2" sizes="(min-width: 60rem) 32rem, 82vw" />
-                {s.caption && <figcaption>{s.caption}</figcaption>}
-              </figure>
-            </li>
-          ))
-        }
-      </ul>
+
+      {
+        slides.length ? (
+          <div class="carousel" data-carousel>
+            <ul class="carousel__track" tabindex="0" aria-label="Pages from the book. Scroll sideways to see more." data-carousel-track>
+              {slides.map((p, i) => (
+                <li class="carousel__slide" aria-label={`${i + 1} of ${slides.length}: ${cap(p.name)}`}>
+                  <figure class="page card">
+                    <Image
+                      src={p.image}
+                      alt={alt(p.name, p.kind)}
+                      widths={[400, 640, 960, 1280]}
+                      sizes="(min-width: 60rem) 26rem, 80vw"
+                      class="page__img"
+                    />
+                    <figcaption class="page__caption">
+                      <span class="page__name">{cap(p.name)}</span>
+                      <span class:list={['chip', `chip--${p.kind}`]}>{p.kind === 'animal' ? 'Animal' : 'Food'}</span>
+                    </figcaption>
+                  </figure>
+                </li>
+              ))}
+            </ul>
+            <div class="carousel__dots" role="group" aria-label="Choose a page">
+              {slides.map((p, i) => (
+                <button type="button" class="dot" data-carousel-dot={i} aria-label={`Show page ${i + 1}: ${cap(p.name)}`} />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div class="wrap">
+            <p>
+              <Todo label="page pictures: assets/pages/animal-<name>.jpg and food-<name>.jpg" />
+            </p>
+          </div>
+        )
+      }
+
       <div class="wrap lists">
         {
           lists.map((l) => (
-            <div>
+            <div class="lists__group">
               <h3>{l.title}</h3>
               {l.names.length ? (
-                <ul>
+                <ul class="chips">
                   {l.names.map((n) => (
-                    <li>{n}</li>
+                    <li class="chip">{cap(n)}</li>
                   ))}
                 </ul>
               ) : (
@@ -105,28 +156,28 @@ const lists = [
       </div>
     </section>
 
-    <!-- Watch Pip draw: thumbnails that open YouTube -->
+    <!-- Watch Pip draw: video cards that open YouTube -->
     <section class="section on-mat watch" aria-labelledby="watch-title" style={bannerVars}>
       <div class="wrap">
         <h2 id="watch-title">Watch Pip draw</h2>
         <p class="lede">Grab a pencil and draw along with Pip. Pause after each step and copy it.</p>
-        <p class="grown-ups"><b>For grown-ups:</b> these videos open on YouTube, in a new tab.</p>
+        <p class="grown-ups"><b>For grown-ups:</b> videos open on YouTube, in a new tab.</p>
         <VideoGrid />
         <div class="follow">
           <h3>Follow Pip</h3>
-          <ul>
+          <ul class="follow__list">
             {
               socials.map((s) => (
                 <li>
                   {s.url ? (
-                    <a href={s.url} target="_blank" rel="noopener">
+                    <a class="pill-link" href={s.url} target="_blank" rel="noopener">
                       {s.channel}
                       <span class="visually-hidden">(opens in a new tab)</span>
                     </a>
                   ) : (
-                    <>
-                      <span>{s.channel}</span> <Todo label="link" />
-                    </>
+                    <span class="pill-link pill-link--off">
+                      {s.channel} <Todo label="link" />
+                    </span>
                   )}
                 </li>
               ))
@@ -136,42 +187,51 @@ const lists = [
       </div>
     </section>
 
-    <section class="section" aria-labelledby="who-title">
+    <!-- Who it's for -->
+    <section class="section who" aria-labelledby="who-title">
       <div class="wrap">
-        <h2 id="who-title" class="visually-hidden">Who it's for</h2>
-        <div class="who">
-          <div>
-            <h3 class="who__title">For parents</h3>
+        <h2 id="who-title">Made for families and classrooms</h2>
+        <div class="who__grid">
+          <article class="who__card card">
+            <h3>For parents</h3>
             <p>
-              Sit down and draw together, or let them get on with it. Each page shows what to draw next, so kids go at their
-              own pace and finish with a drawing that's really theirs.
+              Sit down and draw together, or let them get on with it. Each page shows what to draw next, so kids go at their own
+              pace and finish with a drawing that's really theirs.
             </p>
-          </div>
-          <div>
-            <h3 class="who__title">For teachers</h3>
-            <p>The whole class can draw the same animal at once, one step at a time. <a href="/teachers">Teaching with Pip</a></p>
-          </div>
+          </article>
+          <article class="who__card card">
+            <h3>For teachers</h3>
+            <p>The whole class can draw the same animal at once, one step at a time.</p>
+            <a class="text-link" href="/teachers">Teaching with Pip</a>
+          </article>
         </div>
       </div>
     </section>
 
+    <!-- Questions -->
     <section class="section faq" aria-labelledby="faq-title">
       <div class="wrap">
         <h2 id="faq-title">Questions</h2>
-        <dl>
-          <div>
+        <dl class="faq__list">
+          <div class="faq__item card">
             <dt>What age is it for?</dt>
             <dd>Kids aged {book.ageRange || <Todo label="age range" />}.</dd>
           </div>
-          <div>
+          <div class="faq__item card">
             <dt>How big is the book?</dt>
             <dd>{book.format || <Todo label="format" />}, with {book.pageCount || <Todo label="page count" />} pages.</dd>
           </div>
-          <div>
+          <div class="faq__item card">
             <dt>What paper is it printed on?</dt>
-            <dd>{book.paper ? `${book.paper[0].toUpperCase()}${book.paper.slice(1)}${/[.!?]$/.test(book.paper) ? '' : '.'}` : <Todo label="paper" />}</dd>
+            <dd>
+              {
+                book.paper
+                  ? `${book.paper[0].toUpperCase()}${book.paper.slice(1)}${/[.!?]$/.test(book.paper) ? '' : '.'}`
+                  : <Todo label="paper" />
+              }
+            </dd>
           </div>
-          <div>
+          <div class="faq__item card">
             <dt>How does the drawing method work?</dt>
             <dd>
               Each animal or food is split into small steps. Kids copy the first step, add the next, and keep going until the
@@ -182,303 +242,445 @@ const lists = [
       </div>
     </section>
 
+    <!-- Buy -->
     <section class="section buyblock" id="buy" aria-labelledby="buy-title">
-      <div class="wrap buyblock__inner">
-        <div class="buyblock__cover">
-          <Art image={cover} alt={`Front cover of ${book.title || 'the book'}`} missing="Cover" ratio="17 / 22" sizes="(min-width: 60rem) 14rem, 8rem" widths={[200, 320, 480]} />
-        </div>
-        <div>
-          <p class="grown-ups"><b>For grown-ups</b></p>
-          <h2 id="buy-title" class="buyblock__title">
-            {mainTitle || <Todo label="book title" />}
-            {series && <span class="visually-hidden"> - </span>}
-            {series && <span class="buyblock__series">{series}</span>}
-          </h2>
-          <p class="buyblock__facts">
-            Paperback by {book.author}, {book.pageCount || <Todo label="page count" />} pages, for ages {book.ageRange || <Todo label="age range" />}
-          </p>
-          <BuyButton />
+      <div class="wrap">
+        <div class:list={['buyblock__card', 'card', { 'buyblock__card--cover': cover }]}>
+          {
+            cover && (
+              <div class="buyblock__cover">
+                <Art image={cover} alt={`Front cover of ${book.title}`} missing="Cover" ratio="17 / 22" sizes="(min-width: 60rem) 14rem, 9rem" widths={[240, 360, 480]} />
+              </div>
+            )
+          }
+          <div>
+            <p class="grown-ups"><b>For grown-ups</b></p>
+            <h2 id="buy-title" class="buyblock__title">
+              {mainTitle || <Todo label="book title" />}
+              {series && <span class="visually-hidden"> - </span>}
+              {series && <span class="buyblock__series">{series}</span>}
+            </h2>
+            <p class="buyblock__facts">
+              Paperback by {book.author}, {book.pageCount || <Todo label="page count" />} pages, ages {book.ageRange || <Todo label="age range" />}
+            </p>
+            <BuyButton />
+          </div>
         </div>
       </div>
     </section>
   </main>
 </Base>
 
+<script>
+  // Carousel: arrows, dots and swipe all drive the same native scroll-snap track
+  const root = document.querySelector<HTMLElement>('[data-carousel]');
+  const track = root?.querySelector<HTMLElement>('[data-carousel-track]');
+  if (root && track) {
+    const slides = [...track.children] as HTMLElement[];
+    const dots = [...root.querySelectorAll<HTMLButtonElement>('[data-carousel-dot]')];
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let current = 0;
+    const go = (i: number) => {
+      const n = Math.max(0, Math.min(slides.length - 1, i));
+      track.scrollTo({ left: slides[n].offsetLeft - track.offsetLeft - parseFloat(getComputedStyle(track).paddingLeft), behavior: reduce ? 'auto' : 'smooth' });
+    };
+    const mark = (i: number) => {
+      current = i;
+      dots.forEach((d, j) => d.setAttribute('aria-current', String(j === i)));
+    };
+    document.querySelector('[data-carousel-prev]')?.addEventListener('click', () => go(current - 1));
+    document.querySelector('[data-carousel-next]')?.addEventListener('click', () => go(current + 1));
+    dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) mark(slides.indexOf(e.target as HTMLElement));
+      },
+      { root: track, threshold: 0.6 },
+    );
+    slides.forEach((s) => io.observe(s));
+    mark(0);
+  }
+</script>
+
 <style>
-  /* ---------- running head ---------- */
+  /* ---------- Top bar ---------- */
   .top {
+    background: var(--sky);
+    border-bottom: var(--line);
+  }
+  .top__inner {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0.9rem var(--gutter);
-    background-image: none;
+    justify-content: space-between;
+    gap: var(--s2);
+    min-height: var(--s8);
   }
   .top__name {
-    font-stretch: 68%;
-    font-weight: 800;
-    font-size: 1.3rem;
-    letter-spacing: 0.01em;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--step-1);
   }
-  .top a {
+  .top__link {
+    font-weight: 800;
     font-size: var(--step--1);
   }
-  .top :focus-visible {
-    outline-color: var(--on-mat);
+  .top__buy {
+    display: none;
+  }
+  @media (min-width: 60rem) {
+    /* Wider screens: the bar stays pinned, so Buy is always one click away */
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .top__buy {
+      display: block;
+    }
+    .top__link {
+      display: none;
+    }
   }
 
-  /* ---------- hero ---------- */
+  /* ---------- Hero ---------- */
   .hero {
-    padding-bottom: 3rem;
-    overflow: hidden;
-  }
-  /* Phones: the banner fills the top at its own shape; the text sits below on its sky blue */
-  .hero {
-    background-color: var(--mat);
+    background-color: var(--sky);
     background-image: var(--banner-sm);
     background-repeat: no-repeat;
     background-position: center top;
     background-size: 100% auto;
-    padding-top: 62vw; /* the banner's height at full width (1632 / 2624) */
+    padding: 62vw 0 var(--s6); /* the banner's own shape: 1632 / 2624 */
   }
-  .hero__copy {
-    padding-top: 1.25rem;
+  .hero__card {
+    padding: var(--s3);
   }
   .hero h1 {
-    font-size: clamp(2.6rem, 11vw, 5rem);
-    max-width: 16ch;
+    margin-bottom: var(--s2);
   }
   .hero__series {
     display: block;
-    font-stretch: 100%;
-    font-size: var(--step-2);
-    font-weight: 700;
-    letter-spacing: 0;
-    margin-top: 0.4rem;
+    margin-top: var(--s1);
+    font-size: var(--step-1);
+    line-height: 2rem;
+    color: var(--ink-soft);
   }
-  .hero .lede {
-    color: var(--on-mat-soft);
-  }
-  .hero .lede {
-    max-width: 30rem;
-    margin-bottom: 1.5rem;
+  .hero__lede {
+    font-size: var(--step-0);
+    color: var(--ink-soft);
+    margin-bottom: var(--s3);
   }
   .hero__facts {
-    margin: 1rem 0 0;
+    margin: var(--s2) 0 0;
     font-size: var(--step--1);
-    color: var(--on-mat-soft);
-    line-height: 1.9;
+    line-height: 1.5rem;
+    font-weight: 700;
+    color: var(--ink-soft);
   }
-  .hero :focus-visible {
-    outline-color: var(--on-mat);
+  @media (min-width: 60rem) {
+    .hero {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-end;
+      /* Short enough that the card (which hangs 80px below) and its Buy button fit on the first screen */
+      min-height: min(50vw, calc(100vh - var(--s8) - 7.5rem));
+      margin-bottom: var(--s10);
+      padding: 0;
+      background-image: var(--banner-lg);
+      background-size: cover;
+      background-position: center;
+    }
+    .hero .wrap {
+      width: 100%;
+    }
+    /* A wide, short card over the banner's lower left, clear of its headline */
+    .hero__card {
+      display: grid;
+      grid-template-columns: 15rem minmax(0, 1fr);
+      gap: 0 var(--s4);
+      align-items: start;
+      max-width: 46rem;
+      padding: var(--s3) var(--s4);
+      margin-bottom: calc(-1 * var(--s10)); /* hang over the banner's bottom edge */
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: var(--step-4);
+    }
   }
 
-  /* The video section: the same banner, faded far back behind the text */
+  /* ---------- Inside the book: carousel ---------- */
+  .inside__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--s3);
+  }
+  .carousel__nav {
+    display: none;
+    gap: var(--s2);
+    margin-bottom: var(--s2);
+  }
+  @media (min-width: 40rem) {
+    .carousel__nav {
+      display: flex;
+    }
+  }
+  .round-btn {
+    display: grid;
+    place-items: center;
+    width: var(--s6);
+    height: var(--s6);
+    border: var(--line);
+    border-radius: 50%;
+    background: var(--sun);
+    color: var(--ink);
+    font: 600 var(--step-1) / 1 var(--font-display);
+    box-shadow: 0 4px 0 var(--ink);
+    cursor: pointer;
+  }
+  .round-btn:hover {
+    background: var(--tangerine);
+  }
+  .round-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--ink);
+  }
+
+  .carousel__track {
+    list-style: none;
+    margin: var(--s4) 0 0;
+    padding: var(--s1) var(--gutter) var(--s3);
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 80%;
+    gap: var(--s3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .carousel__track::-webkit-scrollbar {
+    display: none;
+  }
+  .carousel__track:focus-visible {
+    outline-offset: -4px;
+  }
+  .carousel__slide {
+    scroll-snap-align: start;
+  }
+  .page {
+    margin: 0;
+    overflow: hidden;
+  }
+  .page :global(.page__img) {
+    width: 100%;
+    height: auto;
+    border-bottom: var(--line);
+  }
+  .page__caption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s2);
+    padding: var(--s2) var(--s3);
+  }
+  .page__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--step-2);
+    line-height: 2.25rem;
+  }
+  .carousel__dots {
+    display: flex;
+    justify-content: center;
+    gap: var(--s1);
+    margin-top: var(--s1);
+  }
+  .dot {
+    width: var(--s3);
+    height: var(--s3);
+    padding: 0;
+    border: var(--line-thin);
+    border-radius: 50%;
+    background: var(--paper);
+    cursor: pointer;
+  }
+  .dot[aria-current='true'] {
+    background: var(--tangerine);
+  }
+  @media (min-width: 60rem) {
+    .carousel__track {
+      grid-auto-columns: calc((min(100vw, var(--container)) - 2 * var(--s3)) / 3);
+      padding-inline: max(var(--gutter), calc((100vw - var(--container)) / 2));
+      scroll-padding-inline: max(var(--gutter), calc((100vw - var(--container)) / 2));
+    }
+  }
+
+  /* Chips: the lists of animals and foods */
+  .lists {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s3);
+    margin-top: var(--s6);
+  }
+  @media (min-width: 60rem) {
+    .lists {
+      grid-template-columns: repeat(2, minmax(0, 20rem));
+      gap: var(--s6);
+    }
+  }
+  .chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s1);
+  }
+  .chip {
+    display: inline-block;
+    padding: 4px var(--s2);
+    border: var(--line-thin);
+    border-radius: 999px;
+    background: var(--paper);
+    font-weight: 800;
+    font-size: var(--step--1);
+    line-height: 1.5rem;
+  }
+  .chip--animal {
+    background: var(--sun);
+  }
+  .chip--food {
+    background: #ffd0c9;
+  }
+
+  /* ---------- Watch ---------- */
   .watch {
+    border-top: var(--line);
+    border-bottom: var(--line);
     background-image:
       linear-gradient(rgba(104, 200, 242, 0.9), rgba(104, 200, 242, 0.9)),
       var(--banner-lg);
     background-size: cover;
     background-position: center;
   }
-
-  /* ---------- inside ---------- */
-  .strip {
-    list-style: none;
-    margin: 1.75rem 0 0;
-    padding: 0 var(--gutter) 0.75rem;
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 82%;
-    gap: 1rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--gutter);
-    scrollbar-width: thin;
-    scrollbar-color: var(--rule) transparent;
-  }
-  .strip li {
-    scroll-snap-align: start;
-  }
-  .strip figure {
-    margin: 0;
-  }
-  .strip figcaption {
-    margin-top: 0.5rem;
-    font-size: var(--step--1);
-    color: var(--pencil-soft);
-    text-transform: capitalize;
-  }
-  .lists {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-top: 2.5rem;
-  }
-  .lists ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1px solid var(--pencil);
-  }
-  .lists li {
-    padding: 0.4rem 0;
-    border-bottom: 1px solid var(--rule);
-    text-transform: capitalize;
-  }
-
-  /* ---------- watch ---------- */
-  .watch .grown-ups {
-    margin-top: -0.25rem;
-  }
-  .watch :focus-visible {
-    outline-color: var(--on-mat);
-  }
   .follow {
-    margin-top: 3.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--mat-line);
+    margin-top: var(--s8);
   }
-  .follow ul {
+  .follow__list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1.75rem;
-    font-size: var(--step-1);
-    font-weight: 700;
+    gap: var(--s2);
+  }
+  .pill-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s1);
+    min-height: var(--s6);
+    padding: 0 var(--s3);
+    border: var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 0 var(--ink);
+  }
+  a.pill-link:hover {
+    background: var(--sun);
   }
 
-  /* ---------- who ---------- */
+  /* ---------- Who ---------- */
   .who {
-    display: grid;
-    gap: 2.5rem;
+    border-top: 0;
   }
-  .who__title {
-    font-stretch: 68%;
+  .who__grid {
+    display: grid;
+    gap: var(--s4);
+    margin-top: var(--s4);
+  }
+  .who__card {
+    padding: var(--s4);
+  }
+  .who__card p {
+    margin-bottom: var(--s2);
+  }
+  .text-link {
     font-weight: 800;
-    font-size: clamp(2rem, 7vw, 3rem);
-    line-height: 1;
-    margin-bottom: 0.6rem;
+  }
+  @media (min-width: 60rem) {
+    .who__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
-  /* ---------- questions ---------- */
-  .faq {
-    padding-top: 0;
+  /* ---------- Questions ---------- */
+  .faq__list {
+    display: grid;
+    gap: var(--s3);
+    margin: var(--s4) 0 0;
   }
-  dl {
-    margin: 0;
-    max-width: 44rem;
-    border-top: 1px solid var(--pencil);
+  .faq__item {
+    padding: var(--s3);
   }
-  dl div {
-    padding: 1.1rem 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  dt {
-    font-weight: 700;
+  .faq__item dt {
+    font-family: var(--font-display);
+    font-weight: 600;
     font-size: var(--step-1);
-    line-height: 1.3;
+    line-height: 2rem;
   }
-  dd {
-    margin: 0.25rem 0 0;
-    color: var(--pencil-soft);
+  .faq__item dd {
+    margin: var(--s1) 0 0;
+    color: var(--ink-soft);
     max-width: var(--measure);
   }
-
-  /* ---------- buy block ---------- */
-  .buyblock {
-    padding-top: 0;
+  @media (min-width: 60rem) {
+    .faq__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
-  .buyblock__inner {
+
+  /* ---------- Buy ---------- */
+  .buyblock__card {
+    padding: var(--s4);
+    background: var(--sky-soft);
+  }
+  .buyblock__card--cover {
     display: grid;
-    grid-template-columns: 7rem 1fr;
-    gap: 1.25rem;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: var(--s3);
     align-items: end;
   }
-  .buyblock__cover :global(.art) {
-    box-shadow: 0 18px 30px -14px rgba(0, 0, 0, 0.35);
-  }
   .buyblock .grown-ups {
-    margin-bottom: 0.4rem;
+    margin-bottom: var(--s1);
   }
   .buyblock__title {
-    font-size: clamp(2rem, 7vw, 3.25rem);
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--s1);
   }
   .buyblock__series {
     display: block;
-    margin-top: 0.3rem;
-    font-stretch: 100%;
-    font-weight: 700;
+    margin-top: var(--s1);
     font-size: var(--step-1);
-    letter-spacing: 0;
+    line-height: 2rem;
+    color: var(--ink-soft);
   }
   .buyblock__facts {
-    color: var(--pencil-soft);
-    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: var(--s3);
   }
-
   @media (min-width: 60rem) {
-    .hero {
-      padding-bottom: 5rem;
+    .buyblock__card {
+      padding: var(--s6);
     }
-    .hero {
-      display: flex;
-      align-items: flex-end;
-      min-height: min(56vw, calc(100vh - 3.5rem));
-      padding: 0 0 2rem;
-      background-image: var(--banner-lg);
-      background-size: cover;
-      background-position: center;
-    }
-    /* The text sits in a white panel over the banner's lower left, clear of its headline */
-    .hero__copy {
-      display: grid;
+    .buyblock__card--cover {
       grid-template-columns: 14rem minmax(0, 1fr);
-      column-gap: 1.75rem;
-      align-items: start;
-      max-width: 42rem;
-      padding: 1.5rem 1.75rem;
-      background: var(--paper);
-      border-radius: 4px;
-      box-shadow: 0 18px 40px -20px rgba(30, 26, 60, 0.45);
-    }
-    .hero__copy h1 {
-      grid-column: 1;
-      grid-row: 1 / span 3;
-      margin: 0;
-      font-size: clamp(2rem, 2.6vw, 2.6rem);
-    }
-    .hero__copy h1 .hero__series {
-      font-size: var(--step-1);
-    }
-    .hero__copy > :not(h1) {
-      grid-column: 2;
-    }
-    .hero__copy .lede {
-      margin-bottom: 1rem;
-    }
-    .hero__copy .lede {
-      font-size: var(--step-0);
-      color: var(--pencil-soft);
-    }
-    .strip {
-      grid-auto-columns: 42%;
-      padding-inline: max(var(--gutter), calc((100vw - 76rem) / 2 + var(--gutter)));
-      scroll-padding-inline: max(var(--gutter), calc((100vw - 76rem) / 2 + var(--gutter)));
-    }
-    .lists {
-      grid-template-columns: repeat(2, minmax(0, 20rem));
-      gap: 3rem;
-    }
-    .who {
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-    }
-    .buyblock__inner {
-      grid-template-columns: 14rem 1fr;
-      gap: 3rem;
+      gap: var(--s6);
     }
   }
 </style>

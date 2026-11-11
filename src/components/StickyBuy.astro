@@ -1,5 +1,6 @@
 ---
-// Mobile only: the title and a Buy button pinned to the bottom of the screen.
+// Phones: the title and a Buy pill pinned to the bottom of the screen.
+// (On wider screens the pinned top bar carries the Buy pill instead.)
 // It slides away while another Buy button is already on screen, so there's never two at once.
 import BuyButton from './BuyButton.astro';
 import { book } from '../data/book';
@@ -7,12 +8,14 @@ import { book } from '../data/book';
 
 <div class="sticky-buy" data-sticky-buy>
   <span class="sticky-buy__title">{book.title || 'Pip the fox'}</span>
-  <BuyButton showPrice={false} showMissing={false} />
+  <BuyButton showPrice={false} showMissing={false} size="small" />
 </div>
 
 <script>
   const bar = document.querySelector<HTMLElement>('[data-sticky-buy]');
-  const others = [...document.querySelectorAll('.buy__button')].filter((el) => !el.closest('[data-sticky-buy]'));
+  const others = [...document.querySelectorAll('.buy__button')].filter(
+    (el) => !el.closest('[data-sticky-buy]') && !el.closest('[data-top-buy]'),
+  );
   if (bar && others.length && 'IntersectionObserver' in window) {
     const visible = new Set<Element>();
     const io = new IntersectionObserver((entries) => {
@@ -27,30 +30,26 @@ import { book } from '../data/book';
   .sticky-buy {
     position: fixed;
     inset: auto 0 0 0;
-    z-index: 10;
+    z-index: 20;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    padding: 0.6rem var(--gutter) calc(0.6rem + env(safe-area-inset-bottom));
+    gap: var(--s2);
+    padding: var(--s1) var(--gutter) calc(var(--s1) + env(safe-area-inset-bottom));
     background: var(--paper);
-    border-top: 1px solid var(--pencil);
+    border-top: var(--line);
     transition:
       transform 200ms ease,
       visibility 0s linear 0s;
   }
   .sticky-buy__title {
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-weight: 600;
     font-size: var(--step--1);
-    line-height: 1.2;
+    line-height: 1.25rem;
   }
   .sticky-buy :global(.buy) {
     flex: none;
-  }
-  .sticky-buy :global(.buy__button) {
-    white-space: nowrap;
-    padding: 0.7rem 1rem;
-    font-size: 1rem;
   }
   .sticky-buy.is-hidden {
     transform: translateY(110%);

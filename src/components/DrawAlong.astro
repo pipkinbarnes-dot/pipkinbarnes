@@ -3,18 +3,24 @@
 // Pip's line for kids and a note for grown-ups at each step.
 // Uses CSS scroll-driven animations (no script). Where they aren't supported, or the
 // visitor has asked for reduced motion, it shows the finished drawing and all four steps.
+import { Image } from 'astro:assets';
 import DrawingSteps from './DrawingSteps.astro';
-import Todo from './Todo.astro';
 import { drawAlong } from '../data/drawalong';
 
-const { steps, subject, standIn } = drawAlong;
+const { steps, subject } = drawAlong;
+
+// Lesson graphic: drop a crisp step-by-step image into assets/lesson/ (SVG best, or a large PNG)
+// and it replaces the animated drawing. SVGs are served as-is, so line art stays sharp on Retina.
+type Mod = { default: ImageMetadata };
+const lessons = import.meta.glob<Mod>('/assets/lesson/*.{svg,png,jpg,jpeg,webp}', { eager: true });
+const lesson = Object.values(lessons)[0]?.default;
+
 ---
 
 <section class="drawalong" aria-labelledby="drawalong-title">
   <div class="pin">
     <div class="copy">
       <h2 id="drawalong-title">Four steps. One {subject.replace(/^an? /, '')}.</h2>
-      {standIn && <p><Todo label="stand-in drawing: replace with a page from the book" /></p>}
       <ol class="progress" aria-label="Steps and what to draw with">
         {
           steps.map((s, i) => (
@@ -43,14 +49,33 @@ const { steps, subject, standIn } = drawAlong;
         }
       </ol>
     </div>
-    <div class="sheet">
-      <ol class="stepnum" aria-hidden="true">
-        {steps.map((_, i) => <li>{i + 1}</li>)}
-      </ol>
-      <div class="sheet__drawing">
-        <DrawingSteps label={`${subject[0].toUpperCase()}${subject.slice(1)}, drawn in ${steps.length} steps`} stroke={2} />
-      </div>
-    </div>
+    <figure class="sheet lesson">
+      {
+        lesson ? (
+          <Image
+            src={lesson}
+            alt={`How to draw ${subject} step by step: a lesson from Draw It, Then Color It!`}
+            widths={[480, 800, 1200]}
+            sizes="(min-width: 60rem) 34rem, 90vw"
+            class="lesson__graphic"
+          />
+        ) : (
+          <>
+            <ol class="stepnum" aria-hidden="true">
+              {steps.map((_, i) => (
+                <li>{i + 1}</li>
+              ))}
+            </ol>
+            <div class="sheet__drawing">
+              <DrawingSteps
+                label={`${subject[0].toUpperCase()}${subject.slice(1)}, drawn in ${steps.length} steps: a circle, the outline, a stem and leaf, then color`}
+                stroke={2.4}
+              />
+            </div>
+          </>
+        )
+      }
+    </figure>
   </div>
 </section>
 
@@ -58,11 +83,14 @@ const { steps, subject, standIn } = drawAlong;
   .drawalong {
     background: var(--paper);
   }
+  .drawalong {
+    border-top: var(--line);
+  }
   .pin {
     display: grid;
-    gap: 1.5rem;
-    padding: 4.5rem var(--gutter);
-    max-width: 76rem;
+    gap: var(--s3);
+    padding: var(--s8) var(--gutter);
+    max-width: calc(var(--container) + 2 * var(--gutter));
     margin-inline: auto;
   }
   .copy p {
@@ -71,17 +99,18 @@ const { steps, subject, standIn } = drawAlong;
 
   .progress {
     list-style: none;
-    margin: 0 0 1.25rem;
+    margin: 0 0 var(--s3);
     padding: 0;
     display: flex;
-    gap: 0.4rem;
+    gap: var(--s1);
   }
   .progress li {
     position: relative;
-    width: 3rem;
-    height: 8px;
-    border-radius: 4px;
-    background: var(--rule);
+    width: var(--s6);
+    height: var(--s2);
+    border: var(--line-thin);
+    border-radius: 999px;
+    background: var(--paper);
     overflow: hidden;
   }
   .progress li::after {
@@ -98,26 +127,38 @@ const { steps, subject, standIn } = drawAlong;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 1rem;
+    gap: var(--s2);
     max-width: 26rem;
   }
   .notes p {
     margin: 0;
   }
   .notes__pip {
+    font-family: var(--font-display);
     font-size: var(--step-2);
-    font-weight: 700;
-    line-height: 1.2;
+    font-weight: 600;
+    line-height: 2.25rem;
   }
   .grown-ups {
-    margin-top: 0.4rem !important;
+    margin-top: var(--s1) !important;
   }
 
+  /* The lesson card: thick outline and a sticker shadow, like a page from the book */
   .sheet {
     position: relative;
+    margin: 0;
     width: min(100%, 28rem);
     aspect-ratio: 1;
-    border: 1px solid var(--pencil);
+    background: var(--paper);
+    border: var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--sticker);
+    overflow: hidden;
+  }
+  .lesson :global(.lesson__graphic) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
   .sheet__drawing {
     position: absolute;
@@ -131,17 +172,25 @@ const { steps, subject, standIn } = drawAlong;
     margin: 0;
     padding: 0;
     position: absolute;
-    top: 0.45rem;
-    left: 0.65rem;
+    top: var(--s2);
+    left: var(--s2);
     display: grid;
-    font-stretch: 68%;
-    font-weight: 800;
-    font-size: 2.4rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--step-2);
     line-height: 1;
   }
   .stepnum li {
     grid-area: 1 / 1;
     visibility: hidden;
+    display: grid;
+    place-items: center;
+    width: var(--s6);
+    height: var(--s6);
+    border: var(--line);
+    border-radius: 50%;
+    background: var(--sun);
+    color: var(--ink);
   }
   .stepnum li:last-child {
     visibility: visible;

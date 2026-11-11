@@ -3,7 +3,8 @@
 // src/data/book.ts are included; nothing is guessed. Missing ones are listed at build time.
 import { getImage } from 'astro:assets';
 import { book, socials } from '../data/book';
-import { cover } from '../data/art';
+import { cover, videoThumbs } from '../data/art';
+import { videos } from '../data/videos';
 
 const site = Astro.site;
 const missing: string[] = [];
@@ -76,8 +77,38 @@ const bookData = {
 
 if (missing.length) console.warn(`[pip] Structured data is missing: ${missing.join(', ')}.`);
 
+// VideoObject for each listed YouTube video that has what Google requires:
+// title, description, upload date (YYYY-MM-DD) and a thumbnail.
+const isoDuration = (d: string) => {
+  const parts = d.split(':').map(Number);
+  if (!parts.length || parts.some(Number.isNaN)) return undefined;
+  const [h, m, sec] = parts.length === 3 ? parts : [0, ...(parts.length === 2 ? parts : [0, parts[0]])];
+  return `PT${h ? `${h}H` : ''}${m ? `${m}M` : ''}${sec ? `${sec}S` : ''}` || undefined;
+};
+const youtubeId = (u: string) => u.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]{11})/)?.[1];
+const videoNodes = [];
+for (const v of videos) {
+  const thumb = videoThumbs.get(v.id);
+  if (!v.title || !v.description || !/^\d{4}-\d{2}-\d{2}$/.test(v.uploadDate) || !thumb || !site) {
+    console.warn(`[pip] Video "${v.id}" is left out of the structured data: it needs a title, description, uploadDate and thumbnail.`);
+    continue;
+  }
+  const id = youtubeId(v.url);
+  videoNodes.push({
+    '@type': 'VideoObject',
+    name: v.title,
+    description: v.description,
+    uploadDate: v.uploadDate,
+    duration: isoDuration(v.duration),
+    thumbnailUrl: new URL((await getImage({ src: thumb, width: 1280, format: 'jpg' })).src, site).href,
+    url: v.url,
+    embedUrl: id ? `https://www.youtube.com/embed/${id}` : undefined,
+    author: person['@id'] ? { '@id': person['@id'] } : undefined,
+  });
+}
+
 // A Book without a name is invalid for search engines, so it's only published once the title is in.
-const graph = bookData.name ? [bookData, person] : [person];
+const graph = [...(bookData.name ? [bookData] : []), person, ...videoNodes];
 if (!bookData.name) console.warn('[pip] Book structured data is left out until the title is set.');
 
 // Escape "<" so nothing in the data can close the script tag.

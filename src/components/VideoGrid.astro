@@ -1,113 +1,227 @@
 ---
-// "Watch Pip draw": local thumbnails that open YouTube in a new tab. No embeds.
+// "Watch Pip draw": a grid of video cards that open YouTube in a new tab. No embeds.
+// Each card shows a looping animated WebP preview if public/videos/<id>.webp exists,
+// otherwise the still thumbnail. With no videos listed yet, one card links to the channel.
+import fs from 'node:fs';
+import path from 'node:path';
+import { Image } from 'astro:assets';
 import { videos } from '../data/videos';
-import { videoThumbs } from '../data/art';
-import Art from './Art.astro';
-import Todo from './Todo.astro';
+import { videoThumbs, samplePages } from '../data/art';
+import { socials } from '../data/book';
 
-const cards = videos.length
-  ? videos.map((v) => ({ ...v, thumb: videoThumbs.get(v.id) }))
-  : [1, 2, 3].map((n) => ({ id: `video-${n}`, title: '', url: '', duration: '', thumb: undefined }));
+const channel = socials.find((s) => s.channel === 'YouTube')?.url;
+const hasPreview = (id: string) => fs.existsSync(path.join(process.cwd(), 'public', 'videos', `${id}.webp`));
+
+const cards = videos.map((v) => ({ ...v, thumb: videoThumbs.get(v.id), preview: hasPreview(v.id) ? `/videos/${v.id}.webp` : undefined }));
+// For the channel card: a real page from the book as its picture
+const channelArt = samplePages.find((p) => p.name === 'cat') ?? samplePages[0];
 ---
 
-<ul class="vgrid">
-  {
-    cards.map((v) => (
-      <li>
-        <a class="vcard" href={v.url || '#'} target="_blank" rel="noopener">
-          <span class="thumb">
-            <Art
-              image={v.thumb}
+{
+  cards.length ? (
+    <ul class="vgrid">
+      {cards.map((v) => (
+        <li>
+          <a class="vcard" href={v.url} target="_blank" rel="noopener">
+            <span class="vcard__media">
+              {v.preview && v.thumb ? (
+                // Looping preview only for visitors who haven't asked for less motion
+                <picture>
+                  <source srcset={v.preview} type="image/webp" media="(prefers-reduced-motion: no-preference)" />
+                  <Image src={v.thumb} alt="" widths={[320, 640, 960]} sizes="(min-width: 60rem) 22rem, 90vw" />
+                </picture>
+              ) : v.preview ? (
+                <img src={v.preview} alt="" width="640" height="360" loading="lazy" decoding="async" />
+              ) : v.thumb ? (
+                <Image src={v.thumb} alt="" widths={[320, 640, 960]} sizes="(min-width: 60rem) 22rem, 90vw" />
+              ) : (
+                <span class="vcard__empty">Thumbnail: assets/videos/{v.id}.jpg</span>
+              )}
+              <span class="play" aria-hidden="true" />
+              {v.duration && <span class="dur">{v.duration}</span>}
+            </span>
+            <span class="vcard__title">{v.title}</span>
+            <span class="vcard__where">
+              Watch on YouTube<span class="visually-hidden"> (opens in a new tab)</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    channel && (
+      <a class="vcard vcard--channel" href={channel} target="_blank" rel="noopener">
+        <span class="vcard__media">
+          {channelArt && (
+            <Image
+              src={channelArt.image}
               alt=""
-              missing={`Thumbnail: assets/videos/${v.id}.jpg`}
-              ratio="16 / 9"
-              sizes="(min-width: 60rem) 23rem, 90vw"
-              widths={[360, 640, 960]}
+              widths={[400, 640, 960]}
+              sizes="(min-width: 60rem) 28rem, 90vw"
+              class="vcard__art"
             />
-            <span class="play" aria-hidden="true" />
-            {v.duration && <span class="dur">{v.duration}</span>}
-          </span>
-          <span class="vcard__title">{v.title || <Todo label="video title and link" />}</span>
+          )}
+          <span class="play" aria-hidden="true" />
+        </span>
+        <span class="vcard__body">
+          <span class="vcard__title">Pip's YouTube channel</span>
+          <span class="vcard__text">Draw-along videos where Pip shows each step, one at a time.</span>
           <span class="vcard__where">
             Watch on YouTube<span class="visually-hidden"> (opens in a new tab)</span>
           </span>
-        </a>
-      </li>
-    ))
-  }
-</ul>
+        </span>
+      </a>
+    )
+  )
+}
 
 <style>
   .vgrid {
     list-style: none;
-    margin: 2rem 0 0;
+    margin: var(--s4) 0 0;
     padding: 0;
     display: grid;
-    gap: 2rem;
+    gap: var(--s4);
   }
+  @media (min-width: 40rem) {
+    .vgrid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 60rem) {
+    .vgrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
   .vcard {
     display: block;
-    color: var(--on-mat);
+    color: var(--ink);
     text-decoration: none;
+    background: var(--paper);
+    border: var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--sticker);
+    overflow: hidden;
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease;
   }
-  .thumb {
+  /* Playful hover: a little lift and the outline turns Pip-orange */
+  .vcard:hover {
+    transform: scale(1.03) rotate(-0.5deg);
+    border-color: var(--tangerine);
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+  .vcard:focus-visible {
+    border-color: var(--tangerine);
+  }
+
+  .vcard__media {
     position: relative;
     display: block;
-    border: 1px solid var(--mat-line);
+    aspect-ratio: 16 / 9;
+    border-bottom: var(--line);
+    background: var(--sky-soft);
   }
-  .thumb :global(.art--empty) {
-    background: var(--mat-deep);
-    border: 0;
-    color: var(--on-mat-soft);
+  .vcard__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .vcard__empty {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: var(--s2);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    text-align: center;
   }
   .play {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 3.4rem;
-    height: 3.4rem;
-    margin: -1.7rem 0 0 -1.7rem;
+    width: 4rem;
+    height: 4rem;
+    margin: -2rem 0 0 -2rem;
     border-radius: 50%;
-    background: var(--paper);
+    background: var(--tomato);
+    border: var(--line);
   }
   .play::after {
     content: '';
     position: absolute;
-    left: 53%;
+    left: 55%;
     top: 50%;
     transform: translate(-50%, -50%);
-    border-left: 15px solid var(--mat);
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
+    border-left: 18px solid var(--paper);
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
   }
   .dur {
     position: absolute;
-    right: 0.4rem;
-    bottom: 0.4rem;
-    background: rgba(0, 0, 0, 0.78);
-    color: #fff;
-    font-size: 0.8rem;
-    padding: 0 0.35rem;
-    border-radius: 2px;
+    right: var(--s1);
+    bottom: var(--s1);
+    padding: 0 var(--s1);
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: var(--step--1);
+    line-height: 1.5rem;
+    font-weight: 700;
+  }
+  .vcard__title,
+  .vcard__where,
+  .vcard__text {
+    display: block;
+    padding-inline: var(--s3);
   }
   .vcard__title {
-    display: block;
-    margin-top: 0.7rem;
+    padding-top: var(--s2);
+    font-family: var(--font-display);
+    font-weight: 600;
     font-size: var(--step-1);
-    font-weight: 700;
-    line-height: 1.25;
+    line-height: 2rem;
+  }
+  .vcard__text {
+    margin-top: var(--s1);
+    color: var(--ink-soft);
   }
   .vcard__where {
-    display: block;
+    padding-block: var(--s1) var(--s3);
     font-size: var(--step--1);
-    color: var(--on-mat-soft);
+    font-weight: 700;
+    color: var(--ink-soft);
   }
-  .vcard:hover .vcard__title {
-    text-decoration: underline;
+
+  /* Single channel card: picture and text side by side on wider screens */
+  .vcard--channel {
+    margin-top: var(--s4);
+    max-width: 48rem;
   }
-  @media (min-width: 60rem) {
-    .vgrid {
-      grid-template-columns: repeat(3, 1fr);
+  .vcard--channel .vcard__media {
+    aspect-ratio: 16 / 9;
+  }
+  @media (min-width: 40rem) {
+    .vcard--channel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+    }
+    .vcard--channel .vcard__media {
+      height: 100%;
+      aspect-ratio: auto;
+      min-height: 15rem;
+      border-bottom: 0;
+      border-right: var(--line);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vcard:hover {
+      transform: none;
     }
   }
 </style>
