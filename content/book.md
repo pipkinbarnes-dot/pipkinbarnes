@@ -5,7 +5,7 @@
 - Author / illustrator:
 - Age range: 3 to 10
 - Page count / format:
-- Paper (weight, colour, single- or double-sided):
+- Paper (weight, colour, single- or double-sided): Black and white interior with white paper
 - Publication date:
 - ISBN:
 - Price:
