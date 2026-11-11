@@ -1,7 +1,8 @@
 ---
-// Top bar on every page: the name (links home), and the Buy pill.
-// Pinned on wider screens so Buy is always one click away; phones use the bottom bar.
+// Top bar on every page: the name (links home), Pip's social logos, and the Buy pill.
+// Pinned on wider screens so Buy is always one click away; phones use the bottom Buy bar.
 import BuyButton from './BuyButton.astro';
+import SocialIcons from './SocialIcons.astro';
 import { book } from '../data/book';
 
 const isHome = Astro.url.pathname === '/';
@@ -10,10 +11,12 @@ const isHome = Astro.url.pathname === '/';
 <header class="top">
   <div class="wrap top__inner">
     {isHome ? <span class="top__name">{book.author}</span> : <a class="top__name" href="/">{book.author}</a>}
-    <div class="top__buy" data-top-buy>
-      <BuyButton size="small" showPrice={false} showMissing={false} />
+    <div class="top__actions">
+      <SocialIcons />
+      <div class="top__buy" data-top-buy>
+        <BuyButton size="small" showPrice={false} showMissing={false} />
+      </div>
     </div>
-    <a class="top__link" href={isHome ? '#buy' : '/#buy'}>Buy the book</a>
   </div>
 </header>
 
@@ -32,15 +35,23 @@ const isHome = Astro.url.pathname === '/';
   .top__name {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: var(--step-1);
+    font-size: var(--step-0);
+    line-height: 1.75rem;
+    white-space: nowrap;
     text-decoration: none;
+  }
+  @media (min-width: 40rem) {
+    .top__name {
+      font-size: var(--step-1);
+    }
   }
   a.top__name:hover {
     text-decoration: underline;
   }
-  .top__link {
-    font-weight: 800;
-    font-size: var(--step--1);
+  .top__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
   }
   .top__buy {
     display: none;
@@ -54,8 +65,12 @@ const isHome = Astro.url.pathname === '/';
     .top__buy {
       display: block;
     }
-    .top__link {
-      display: none;
+  }
+  /* Very narrow phones: put the name above the logos so nothing gets squeezed */
+  @media (max-width: 23rem) {
+    .top__inner {
+      flex-wrap: wrap;
+      padding-block: var(--s1);
     }
   }
 </style>

@@ -1,0 +1,88 @@
+---
+// Round logo links to Pip's social channels, in each brand's own color.
+// Logos come from Simple Icons (CC0) and are written into the page at build time,
+// so no request goes to any outside company until someone clicks.
+import { siInstagram, siTiktok, siYoutube, siPinterest, siFacebook } from 'simple-icons';
+import { socials } from '../data/book';
+
+const logos: Record<string, { path: string; hex: string }> = {
+  Instagram: siInstagram,
+  TikTok: siTiktok,
+  YouTube: siYoutube,
+  Pinterest: siPinterest,
+  Facebook: siFacebook,
+};
+
+const links = socials.filter((s) => s.url && logos[s.channel]).map((s) => ({ ...s, logo: logos[s.channel] }));
+---
+
+{
+  links.length > 0 && (
+    <ul class="social" aria-label="Pip on social media">
+      {links.map((s) => (
+        <li>
+          <a class="social__link" href={s.url} target="_blank" rel="noopener" style={`--brand:#${s.logo.hex}`}>
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+              <path d={s.logo.path} />
+            </svg>
+            <span class="visually-hidden">Pip on {s.channel} (opens in a new tab)</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .social {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--s1);
+  }
+  .social__link {
+    display: grid;
+    place-items: center;
+    width: 2.25rem; /* 36px */
+    height: 2.25rem;
+    border: var(--line-thin);
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--brand);
+    box-shadow: 0 3px 0 var(--ink);
+    transition:
+      transform 120ms ease,
+      background-color 120ms ease;
+  }
+  .social__link svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    fill: currentColor;
+  }
+  .social__link:hover {
+    background: var(--sun);
+    transform: translateY(-2px);
+  }
+  .social__link:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--ink);
+  }
+  @media (min-width: 60rem) {
+    .social__link {
+      width: 2.75rem; /* 44px */
+      height: 2.75rem;
+    }
+    .social__link svg {
+      width: 1.375rem;
+      height: 1.375rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .social__link:hover,
+    .social__link:active {
+      transform: none;
+    }
+  }
+</style>
