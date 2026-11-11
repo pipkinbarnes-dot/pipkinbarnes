@@ -35,6 +35,6 @@ export const FOX = '#c4511c';
 export const png = (buf: Buffer) =>
   new Response(new Uint8Array(buf), { headers: { 'Content-Type': 'image/png' } });
 
-/** A rectangle of solid colour, as a sharp input. */
+/** A rectangle of solid color, as a sharp input. */
 export const block = (width: number, height: number, color: string) =>
   sharp({ create: { width, height, channels: 4, background: color } }).png().toBuffer();

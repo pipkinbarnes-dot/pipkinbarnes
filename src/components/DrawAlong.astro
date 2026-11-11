@@ -18,7 +18,7 @@ const { steps, subject, standIn } = drawAlong;
       <ol class="progress" aria-label="Steps and what to draw with">
         {
           steps.map((s, i) => (
-            <li style={`--tool:${s.colour}`}>
+            <li style={`--tool:${s.color}`}>
               <span class="visually-hidden">
                 Step {i + 1}: {s.tool}
               </span>

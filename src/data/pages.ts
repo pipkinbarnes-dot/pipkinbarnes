@@ -8,7 +8,7 @@ export const pages = {
     path: '/',
     title: book.title ? `${book.title} by ${book.author}` : 'Draw animals and foods step by step with Pip the fox',
     description:
-      'A colouring book by Pipkin Barnes that teaches kids to draw animals and foods step by step, with Pip the fox as their guide.',
+      'A coloring book by Pipkin Barnes that teaches kids to draw animals and foods step by step, with Pip the fox as their guide.',
   },
 } satisfies Record<string, { path: string; title: string; description: string }>;
 

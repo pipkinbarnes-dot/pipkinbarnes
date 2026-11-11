@@ -59,7 +59,7 @@ async function card(): Promise<Buffer> {
     pip = { buf: p.data, w: p.info.width, h: p.info.height };
   }
 
-  // Centre cover + Pip together; Pip overlaps the cover's right edge by a third of its width
+  // Center cover + Pip together; Pip overlaps the cover's right edge by a third of its width
   const overlap = pip ? Math.round(pip.w / 3) : 0;
   const total = (group?.w ?? 0) + (pip ? pip.w - overlap : 0);
   let x = Math.round((W - total) / 2);

@@ -40,5 +40,6 @@ Home, /links, /free-printable, /teachers, /about, /videos, /legal, /privacy, 404
 
 ## Content rules
 - Use only facts from content/. Never invent reviews, ratings, awards or sales figures.
+- US English spelling on the site (color, coloring), to match the title and amazon.com.
 - Every Buy button: the same Amazon link, opens in a new tab, rel="noopener".
 - Footer on every page: legal notice, privacy policy, contact email, social links.
