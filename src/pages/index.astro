@@ -4,7 +4,7 @@ import Art from '../components/Art.astro';
 import BuyButton from '../components/BuyButton.astro';
 import Todo from '../components/Todo.astro';
 import BookSchema from '../components/BookSchema.astro';
-import { Image } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import DrawAlong from '../components/DrawAlong.astro';
 import VideoGrid from '../components/VideoGrid.astro';
 import { book, socials } from '../data/book';
@@ -23,6 +23,11 @@ const strip = samplePages.length
 // "Main title - Series" is shown as two lines in the buy block
 const [mainTitle, series] = book.title.includes(' - ') ? book.title.split(' - ') : [book.title, ''];
 
+// The banner as a CSS background: a small file for phones, a large one for big screens
+const bannerSm = banner ? await getImage({ src: banner, width: 960, format: 'webp' }) : undefined;
+const bannerLg = banner ? await getImage({ src: banner, width: 1920, format: 'webp' }) : undefined;
+const bannerVars = bannerSm && bannerLg ? `--banner-sm: url(${bannerSm.src}); --banner-lg: url(${bannerLg.src});` : '';
+
 const lists = [
   { title: 'Animals', names: book.animals.length ? book.animals : samplePages.filter((p) => p.kind === 'animal').map((p) => p.name) },
   { title: 'Foods', names: book.foods.length ? book.foods : samplePages.filter((p) => p.kind === 'food').map((p) => p.name) },
@@ -38,21 +43,11 @@ const lists = [
   </header>
 
   <main>
-    <!-- Hero: the book's banner on its own sky blue, then the title and Buy -->
-    <div class="hero on-mat">
-      {
-        banner && (
-          <Image
-            src={banner}
-            alt={`“Watch them say ‘I drew that!’” next to the book ${book.title}, with Pip the fox holding a giant pencil`}
-            widths={[640, 960, 1280, 1920, 2600].filter((w) => w <= banner.width)}
-            sizes="(min-width: 90rem) 90rem, 100vw"
-            loading="eager"
-            fetchpriority="high"
-            class="hero__banner"
-          />
-        )
-      }
+    <!-- Hero: the book's banner as the background, with the title and Buy on top -->
+    <div class="hero on-mat" style={bannerVars}>
+      <span class="visually-hidden">
+        Banner: “Watch them say ‘I drew that!’” next to the book {book.title}, with Pip the fox holding a giant pencil.
+      </span>
       <div class="wrap hero__inner">
         <div class="hero__copy">
           <h1>{mainTitle}{series && <span class="hero__series"><span class="visually-hidden"> - </span>{series}</span>}</h1>
@@ -111,7 +106,7 @@ const lists = [
     </section>
 
     <!-- Watch Pip draw: thumbnails that open YouTube -->
-    <section class="section on-mat watch" aria-labelledby="watch-title">
+    <section class="section on-mat watch" aria-labelledby="watch-title" style={bannerVars}>
       <div class="wrap">
         <h2 id="watch-title">Watch Pip draw</h2>
         <p class="lede">Grab a pencil and draw along with Pip. Pause after each step and copy it.</p>
@@ -236,17 +231,17 @@ const lists = [
     padding-bottom: 3rem;
     overflow: hidden;
   }
-  .hero__banner {
-    display: block;
-    width: 100%;
-    /* never taller than ~60% of the screen, so the title and Buy stay in view;
-       the banner's edges are the same sky blue, so it blends at any width */
-    max-width: min(90rem, 100vh);
-    height: auto;
-    margin-inline: auto;
+  /* Phones: the banner fills the top at its own shape; the text sits below on its sky blue */
+  .hero {
+    background-color: var(--mat);
+    background-image: var(--banner-sm);
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: 100% auto;
+    padding-top: 62vw; /* the banner's height at full width (1632 / 2624) */
   }
   .hero__copy {
-    padding-top: 1.5rem;
+    padding-top: 1.25rem;
   }
   .hero h1 {
     font-size: clamp(2.6rem, 11vw, 5rem);
@@ -275,6 +270,15 @@ const lists = [
   }
   .hero :focus-visible {
     outline-color: var(--on-mat);
+  }
+
+  /* The video section: the same banner, faded far back behind the text */
+  .watch {
+    background-image:
+      linear-gradient(rgba(104, 200, 242, 0.9), rgba(104, 200, 242, 0.9)),
+      var(--banner-lg);
+    background-size: cover;
+    background-position: center;
   }
 
   /* ---------- inside ---------- */
@@ -419,20 +423,45 @@ const lists = [
     .hero {
       padding-bottom: 5rem;
     }
+    .hero {
+      display: flex;
+      align-items: flex-end;
+      min-height: min(56vw, calc(100vh - 3.5rem));
+      padding: 0 0 2rem;
+      background-image: var(--banner-lg);
+      background-size: cover;
+      background-position: center;
+    }
+    /* The text sits in a white panel over the banner's lower left, clear of its headline */
     .hero__copy {
       display: grid;
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      column-gap: 4rem;
-      align-items: end;
-      padding-top: 2.5rem;
+      grid-template-columns: 14rem minmax(0, 1fr);
+      column-gap: 1.75rem;
+      align-items: start;
+      max-width: 42rem;
+      padding: 1.5rem 1.75rem;
+      background: var(--paper);
+      border-radius: 4px;
+      box-shadow: 0 18px 40px -20px rgba(30, 26, 60, 0.45);
     }
     .hero__copy h1 {
       grid-column: 1;
-      grid-row: 1 / span 2;
+      grid-row: 1 / span 3;
       margin: 0;
+      font-size: clamp(2rem, 2.6vw, 2.6rem);
+    }
+    .hero__copy h1 .hero__series {
+      font-size: var(--step-1);
     }
     .hero__copy > :not(h1) {
       grid-column: 2;
+    }
+    .hero__copy .lede {
+      margin-bottom: 1rem;
+    }
+    .hero__copy .lede {
+      font-size: var(--step-0);
+      color: var(--pencil-soft);
     }
     .strip {
       grid-auto-columns: 42%;

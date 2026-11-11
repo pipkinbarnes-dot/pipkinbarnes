@@ -1,11 +1,11 @@
 # Pip book website
 
 ## What this is
-The official site for "[BOOK TITLE]" by Pipkin Barnes: a coloring book that
+The official site for "Draw It, Then Color It! - Pip's Adventures" by Pipkin Barnes: a coloring book that
 teaches kids to draw animals and foods step by step, with Pip the fox as guide.
 
 ## Who it's for
-Young kids aged [X-Y] and their parents, plus primary-school teachers. Most
+Young kids aged 3 to 10 and their parents, plus primary-school teachers. Most
 arrive on a phone from Instagram, TikTok, YouTube or Pinterest, often with a
 parent holding the phone and a child looking on.
 - Kids read the pictures and Pip's short lines.
