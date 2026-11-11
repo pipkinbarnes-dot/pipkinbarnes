@@ -179,27 +179,6 @@ const lists = [
       </div>
     </section>
 
-    <!-- Who it's for -->
-    <section class="section who" aria-labelledby="who-title">
-      <div class="wrap">
-        <h2 id="who-title">Made for families and classrooms</h2>
-        <div class="who__grid">
-          <article class="who__card card">
-            <h3>For parents</h3>
-            <p>
-              Sit down and draw together, or let them get on with it. Each page shows what to draw next, so kids go at their own
-              pace and finish with a drawing that's really theirs.
-            </p>
-          </article>
-          <article class="who__card card">
-            <h3>For teachers</h3>
-            <p>The whole class can draw the same animal at once, one step at a time.</p>
-            <a class="text-link" href="/teachers">Teaching with Pip</a>
-          </article>
-        </div>
-      </div>
-    </section>
-
     <!-- Questions -->
     <section class="section faq" aria-labelledby="faq-title">
       <div class="wrap">
@@ -546,30 +525,6 @@ const lists = [
   }
   a.pill-link:hover {
     background: var(--sun);
-  }
-
-  /* ---------- Who ---------- */
-  .who {
-    border-top: 0;
-  }
-  .who__grid {
-    display: grid;
-    gap: var(--s4);
-    margin-top: var(--s4);
-  }
-  .who__card {
-    padding: var(--s4);
-  }
-  .who__card p {
-    margin-bottom: var(--s2);
-  }
-  .text-link {
-    font-weight: 800;
-  }
-  @media (min-width: 60rem) {
-    .who__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
   /* ---------- Questions ---------- */

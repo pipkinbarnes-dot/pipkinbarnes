@@ -174,7 +174,9 @@ b {
 }
 
 /* Thick line between paper sections, like a panel border in the book */
-.section + .section:not(.on-mat) {
+/* (not straight after a blue section, which already ends with its own line) */
+.section:not(.on-mat) + .section:not(.on-mat),
+.drawalong + .section:not(.on-mat) {
   border-top: var(--line);
 }
 
