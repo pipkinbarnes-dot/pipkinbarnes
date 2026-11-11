@@ -4,7 +4,7 @@
 // unless they are in content/book.md.
 
 export const book = {
-  title: '',
+  title: "Draw It, Then Color It! - Pip's Adventures",
   subtitle: '',
   author: 'Pipkin Barnes',
   ageRange: '', // e.g. "4 to 8"
@@ -15,7 +15,7 @@ export const book = {
   publishedDate: '', // YYYY-MM-DD
   price: '', // number only, e.g. "9.99"
   currency: '', // ISO code, e.g. "GBP" or "USD"
-  amazonUrl: '', // the one localized Amazon link used by every Buy button
+  amazonUrl: 'https://www.amazon.com/dp/B0HR5RD25H', // the one localized Amazon link used by every Buy button
   contactEmail: '',
 
   // What's inside: one entry per drawing, from "What's inside" in content/book.md.

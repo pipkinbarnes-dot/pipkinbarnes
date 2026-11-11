@@ -44,7 +44,11 @@ import { book } from '../data/book';
     font-size: var(--step--1);
     line-height: 1.2;
   }
+  .sticky-buy :global(.buy) {
+    flex: none;
+  }
   .sticky-buy :global(.buy__button) {
+    white-space: nowrap;
     padding: 0.7rem 1rem;
     font-size: 1rem;
   }

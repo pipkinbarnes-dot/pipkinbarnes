@@ -8,14 +8,14 @@ teaches kids to draw animals and foods step by step, with Pip the fox as guide.
 Young kids aged [X-Y] and their parents, plus primary-school teachers. Most
 arrive on a phone from Instagram, TikTok, YouTube or Pinterest, often with a
 parent holding the phone and a child looking on.
-- Kids read the pictures and Pip's short speech bubbles.
+- Kids read the pictures and Pip's short lines.
 - Parents and teachers read the rest of the page.
 - Buying and email sign-up are addressed to grown-ups only. Never collect data from children.
 
 Design direction: docs/design-direction.md
 
 ## The site's three jobs, in order
-1. Send visitors to buy the paperback on Amazon: [LOCALIZED AMAZON LINK]
+1. Send visitors to buy the paperback on Amazon: https://www.amazon.com/dp/B0HR5RD25H
 2. Be the hub for every Pip channel (content/socials.md)
 3. Collect parent and teacher emails in exchange for a free printable page
 

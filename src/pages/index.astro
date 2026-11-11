@@ -20,6 +20,9 @@ const strip = samplePages.length
       missing: `Photo of a page: assets/pages/${n % 2 ? 'animal' : 'food'}-<name>.png`,
     }));
 
+// "Main title - Series" is shown as two lines in the buy block
+const [mainTitle, series] = book.title.includes(' - ') ? book.title.split(' - ') : [book.title, ''];
+
 const lists = [
   { title: 'Animals', names: book.animals.length ? book.animals : samplePages.filter((p) => p.kind === 'animal').map((p) => p.name) },
   { title: 'Foods', names: book.foods.length ? book.foods : samplePages.filter((p) => p.kind === 'food').map((p) => p.name) },
@@ -180,7 +183,11 @@ const lists = [
         </div>
         <div>
           <p class="grown-ups"><b>For grown-ups</b></p>
-          <h2 id="buy-title" class="buyblock__title">{book.title || <Todo label="book title" />}</h2>
+          <h2 id="buy-title" class="buyblock__title">
+            {mainTitle || <Todo label="book title" />}
+            {series && <span class="visually-hidden"> - </span>}
+            {series && <span class="buyblock__series">{series}</span>}
+          </h2>
           <p class="buyblock__facts">
             Paperback by {book.author}, {book.pageCount || <Todo label="page count" />} pages, for ages {book.ageRange || <Todo label="age range" />}
           </p>
@@ -370,6 +377,14 @@ const lists = [
   .buyblock__title {
     font-size: clamp(2rem, 7vw, 3.25rem);
     margin-bottom: 0.5rem;
+  }
+  .buyblock__series {
+    display: block;
+    margin-top: 0.3rem;
+    font-stretch: 100%;
+    font-weight: 700;
+    font-size: var(--step-1);
+    letter-spacing: 0;
   }
   .buyblock__facts {
     color: var(--pencil-soft);
