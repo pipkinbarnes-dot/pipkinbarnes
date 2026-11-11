@@ -24,9 +24,9 @@ export const book = {
 };
 
 export const socials: { channel: string; handle: string; url: string }[] = [
-  { channel: 'Instagram', handle: '', url: '' },
-  { channel: 'TikTok', handle: '', url: '' },
-  { channel: 'YouTube', handle: '', url: '' },
-  { channel: 'Pinterest', handle: '', url: '' },
-  { channel: 'Facebook', handle: '', url: '' },
+  { channel: 'Instagram', handle: '', url: 'https://www.instagram.com/pipkinbarnes/' },
+  { channel: 'TikTok', handle: '', url: 'https://www.tiktok.com/@pipkinbarnes' },
+  { channel: 'YouTube', handle: '', url: 'https://www.youtube.com/channel/UCBabI85V5r4wevnROCyKQOg' },
+  { channel: 'Pinterest', handle: '', url: 'https://www.pinterest.com/pipkinbarnes/' },
+  { channel: 'Facebook', handle: '', url: 'https://www.facebook.com/profile.php?id=61596615922927' },
 ];
