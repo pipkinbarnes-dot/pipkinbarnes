@@ -9,14 +9,14 @@ export const book = {
   author: 'Pipkin Barnes',
   ageRange: '3 to 10', // e.g. "4 to 8"
   pageCount: '106', // e.g. "64"
-  format: '', // trim size, e.g. "8.5 × 11 in paperback"
-  paper: '', // e.g. "white, single-sided pages"
-  isbn: '', // ISBN-13 of the paperback, digits only or with hyphens
-  publishedDate: '', // YYYY-MM-DD
-  price: '', // number only, e.g. "9.99"
-  currency: '', // ISO code, e.g. "GBP" or "USD"
+  format: '8.5 × 11 in paperback', // trim size, e.g. "8.5 × 11 in paperback"
+  paper: 'white', // e.g. "white, single-sided pages"
+  isbn: 'B0HR5RD25H', // ISBN-13 of the paperback, digits only or with hyphens
+  publishedDate: '11/07/2026', // YYYY-MM-DD
+  price: '9.99', // number only, e.g. "9.99"
+  currency: 'USD', // ISO code, e.g. "GBP" or "USD"
   amazonUrl: 'https://www.amazon.com/dp/B0HR5RD25H', // the one localized Amazon link used by every Buy button
-  contactEmail: '',
+  contactEmail: 'pipkinbarnes@gmail.com',
 
   // What's inside: one entry per drawing, from "What's inside" in content/book.md.
   animals: [] as string[],
