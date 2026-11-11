@@ -7,6 +7,7 @@ import Todo from '../components/Todo.astro';
 import BookSchema from '../components/BookSchema.astro';
 import DrawAlong from '../components/DrawAlong.astro';
 import VideoGrid from '../components/VideoGrid.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import { book, socials } from '../data/book';
 import { cover, samplePages, banner } from '../data/art';
 
@@ -34,16 +35,7 @@ const lists = [
 <Base page="home">
   <BookSchema slot="head" />
 
-  <!-- Top bar: pinned on wider screens, with the Buy pill always in reach -->
-  <header class="top">
-    <div class="wrap top__inner">
-      <span class="top__name">{book.author}</span>
-      <div class="top__buy" data-top-buy>
-        <BuyButton size="small" showPrice={false} showMissing={false} />
-      </div>
-      <a class="top__link" href="#buy">Buy the book</a>
-    </div>
-  </header>
+  <SiteHeader />
 
   <main>
     <!-- Hero: the book's banner as the background, title and Buy on a card -->
@@ -303,45 +295,6 @@ const lists = [
 </script>
 
 <style>
-  /* ---------- Top bar ---------- */
-  .top {
-    background: var(--sky);
-    border-bottom: var(--line);
-  }
-  .top__inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--s2);
-    min-height: var(--s8);
-  }
-  .top__name {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: var(--step-1);
-  }
-  .top__link {
-    font-weight: 800;
-    font-size: var(--step--1);
-  }
-  .top__buy {
-    display: none;
-  }
-  @media (min-width: 60rem) {
-    /* Wider screens: the bar stays pinned, so Buy is always one click away */
-    .top {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
-    .top__buy {
-      display: block;
-    }
-    .top__link {
-      display: none;
-    }
-  }
-
   /* ---------- Hero ---------- */
   .hero {
     background-color: var(--sky);

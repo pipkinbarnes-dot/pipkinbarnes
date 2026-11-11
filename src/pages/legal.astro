@@ -1,0 +1,50 @@
+---
+import TextPage from '../layouts/TextPage.astro';
+import Todo from '../components/Todo.astro';
+import { book } from '../data/book';
+import { legal, hosting } from '../data/legal';
+
+const year = new Date().getFullYear();
+---
+
+<TextPage page="legal" heading="Legal notice" updated={legal.lastUpdated}>
+  <h2>Who publishes this website</h2>
+  <p>
+    pipsadventure.com is the official website of the book <i>{book.title}</i> by {book.author}.
+  </p>
+  <address>
+    <p>
+      Published by: {legal.publisherName || <Todo label="publisher's name" />}<br />
+      Email: {book.contactEmail ? <a href={`mailto:${book.contactEmail}`}>{book.contactEmail}</a> : <Todo label="contact email" />}
+    </p>
+  </address>
+
+  <h2>Hosting</h2>
+  <p>
+    This website is hosted by {hosting.host.name}, {hosting.host.address}. It is delivered through the network of
+    {hosting.network.name.replace(/, Inc\.$/, '')}, which also protects it from attacks.
+  </p>
+
+  <h2>Copyright</h2>
+  <p>
+    All text, illustrations, the character Pip the fox and the book's pages shown on this website are © {year}
+    {book.author}. Please don't copy, reuse or sell them without written permission. To ask, email
+    {book.contactEmail ? <a href={`mailto:${book.contactEmail}`}>{book.contactEmail}</a> : 'us'}.
+  </p>
+
+  <h2>Links to other websites</h2>
+  <p>
+    This website links to Amazon, where the book is sold, and to Pip's pages on Instagram, TikTok, YouTube, Pinterest and
+    Facebook. Those websites are run by other companies, under their own terms and privacy policies. We aren't responsible
+    for their content.
+  </p>
+
+  <h2>Trademarks</h2>
+  <p>
+    Amazon, YouTube, Instagram, TikTok, Pinterest and Facebook are trademarks of their respective owners. This website
+    isn't affiliated with or endorsed by them.
+  </p>
+
+  <h2>Privacy</h2>
+  <p>How this website handles personal data is explained in the <a href="/privacy/">Privacy policy</a>.</p>
+</TextPage>

@@ -12,6 +12,16 @@ export const pages = {
     description:
       "A step-by-step kids drawing book and coloring book: learn how to draw animals and cute foods with Pip the fox, then color them in. For ages 3 to 10.",
   },
+  legal: {
+    path: '/legal/',
+    title: 'Legal notice | Draw It, Then Color It!',
+    description: 'Who publishes pipsadventure.com, the official website of the kids drawing book Draw It, Then Color It! by Pipkin Barnes, and how to get in touch.',
+  },
+  privacy: {
+    path: '/privacy/',
+    title: 'Privacy policy | Draw It, Then Color It!',
+    description: 'pipsadventure.com uses no cookies, no analytics and no tracking. Here is exactly what happens when you visit, and your rights.',
+  },
 } satisfies Record<string, { path: string; title: string; description: string }>;
 
 export type PageKey = keyof typeof pages;

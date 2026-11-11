@@ -1,0 +1,76 @@
+---
+import TextPage from '../layouts/TextPage.astro';
+import Todo from '../components/Todo.astro';
+import { book } from '../data/book';
+import { legal, hosting } from '../data/legal';
+
+const email = book.contactEmail;
+---
+
+<TextPage page="privacy" heading="Privacy policy" updated={legal.lastUpdated}>
+  <h2>The short version</h2>
+  <ul>
+    <li>This website uses no cookies.</li>
+    <li>It has no analytics, no advertising and no tracking.</li>
+    <li>It has no forms and no accounts, so we don't ask you for any personal information.</li>
+    <li>It doesn't collect personal information from children.</li>
+  </ul>
+
+  <h2>Who is responsible</h2>
+  <p>
+    {legal.publisherName || <Todo label="publisher's name" />}. Email: {email ? <a href={`mailto:${email}`}>{email}</a> : <Todo label="contact email" />}
+  </p>
+
+  <h2>What happens when you visit</h2>
+  <p>
+    Like every website, this one is delivered by computers that need some technical information to send you the page: your
+    IP address, your browser type, the page you asked for and the time. Two companies handle this for us, on their own
+    servers:
+  </p>
+  <ul>
+    <li>
+      <b>{hosting.host.name}</b> hosts the website. GitHub logs visitors' IP addresses for security purposes. See
+      <a href={hosting.host.privacy} target="_blank" rel="noopener">GitHub's privacy statement<span class="visually-hidden"> (opens in a new tab)</span></a>.
+    </li>
+    <li>
+      <b>{hosting.network.name}</b> delivers the website quickly and protects it from attacks. See
+      <a href={hosting.network.privacy} target="_blank" rel="noopener">Cloudflare's privacy policy<span class="visually-hidden"> (opens in a new tab)</span></a>.
+    </li>
+  </ul>
+  <p>
+    We don't use this information to identify you, build a profile of you, or show you ads. The fonts and pictures on this
+    website are stored on the website itself, so your browser doesn't contact any other company to display them.
+  </p>
+
+  <h2>Links to other websites</h2>
+  <p>
+    The Buy buttons take you to Amazon, and the video and social links take you to YouTube, Instagram, TikTok, Pinterest and
+    Facebook. Nothing from those websites loads on this one until you click. Once you're on their website, their own
+    privacy policy applies.
+  </p>
+
+  <h2>If you email us</h2>
+  <p>
+    If you write to {email ? <a href={`mailto:${email}`}>{email}</a> : 'us'}, we use your email address and message only to
+    reply to you. We keep them only as long as we need to for that, and we never share or sell them.
+  </p>
+
+  <h2>Children</h2>
+  <p>
+    This website is made for children to enjoy with a grown-up. It doesn't ask children for any information. Buying the
+    book happens on Amazon and is for grown-ups.
+  </p>
+
+  <h2>Your rights</h2>
+  <p>
+    You can ask us what personal information we hold about you (if any), and ask us to correct or delete it. Email
+    {email ? <a href={`mailto:${email}`}>{email}</a> : 'us'} and we'll reply within one month. If you think we haven't
+    handled your data properly, you can also complain to the data protection authority in your country.
+  </p>
+
+  <h2>Changes</h2>
+  <p>
+    If this website ever adds something that collects personal information, such as an email sign-up for the free
+    printable page, this policy will be updated before it goes live. The date at the top shows the last change.
+  </p>
+</TextPage>
