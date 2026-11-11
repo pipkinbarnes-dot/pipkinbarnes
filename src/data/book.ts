@@ -7,8 +7,8 @@ export const book = {
   title: "Draw It, Then Color It! - Pip's Adventures",
   subtitle: '',
   author: 'Pipkin Barnes',
-  ageRange: '', // e.g. "4 to 8"
-  pageCount: '', // e.g. "64"
+  ageRange: '3 to 10', // e.g. "4 to 8"
+  pageCount: '106', // e.g. "64"
   format: '', // trim size, e.g. "8.5 × 11 in paperback"
   paper: '', // e.g. "white, single-sided pages"
   isbn: '', // ISBN-13 of the paperback, digits only or with hyphens
